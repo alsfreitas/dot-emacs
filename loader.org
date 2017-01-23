@@ -1,5 +1,5 @@
 #+TITLE: Emacs configuration file
-#+AUTHOR: Lars Tveito
+#+AUTHOR: ANderson Freitas
 #+BABEL: :cache yes
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
@@ -20,7 +20,7 @@
 
   Clone the repo.
   #+BEGIN_SRC sh :tangle no
-  git clone https://github.com/larstvei/dot-emacs
+  git clone https://github.com/alsfreitas/dot-emacs
   #+END_SRC
 
   Backup your old =~/.emacs.d= (if necessary).
@@ -46,57 +46,32 @@
 ** Meta
 
    All changes to the configuration should be done in =init.org=, *not* in
-   =init.el=. Any changes in the =init.el= will be overwritten by saving
-   =init.org=. The =init.el= in this repo should not be tracked by git, and
-   is replaced the first time Emacs is started (assuming it has been renamed
-   to =~/.emacs.d=).
-
-   Emacs can't load =.org=-files directly, but =org-mode= provides functions
+   =init.el=. Emacs can't load =.org=-files directly, but =org-mode= provides functions
    to extract the code blocks and write them to a file. There are multiple
    ways of handling this; like suggested by [[http://emacs.stackexchange.com/questions/3143/can-i-use-org-mode-to-structure-my-emacs-or-other-el-configuration-file][this StackOverflow post]], one
    could just use =org-babel-load-file=, but I had problems with
-   byte-compilation. Previously I tracked both the =org.=- and =el.=-files,
-   but the git commits got a little messy. So here is a new approach.
+   byte-compilation.
 
    When this configuration is loaded for the first time, the ~init.el~ is
    the file that is loaded. It looks like this:
 
    #+BEGIN_SRC emacs-lisp :tangle no
-   ;; This file replaces itself with the actual configuration at first run.
-
    ;; We can't tangle without org!
    (require 'org)
    ;; Open the configuration
-   (find-file (concat user-emacs-directory "init.org"))
+   (find-file (concat user-emacs-directory "loader.org"))
    ;; tangle it
    (org-babel-tangle)
    ;; load it
-   (load-file (concat user-emacs-directory "init.el"))
+   (load-file (concat user-emacs-directory "loader.el"))
    ;; finally byte-compile it
-   (byte-compile-file (concat user-emacs-directory "init.el"))
+   (byte-compile-file (concat user-emacs-directory "loader.el"))
    #+END_SRC
 
-   It tangles the org-file, so that this file is overwritten with the actual
-   configuration.
-
-   There is no reason to track the =init.el= that is generated; by running
-   the following command =git= will not bother tracking it:
-
-   #+BEGIN_SRC sh :tangle no
-   git update-index --assume-unchanged init.el
-   #+END_SRC
-
-   If one wishes to make changes to the repo-version of =init.el= start
-   tracking again with:
-
-   #+BEGIN_SRC sh :tangle no
-   git update-index --no-assume-unchanged init.el
-   #+END_SRC
-
-   The =init.el= should (after the first run) mirror the source blocks in
-   the =init.org=. We can use =C-c C-v t= to run =org-babel-tangle=, which
-   extracts the code blocks from the current file into a source-specific
-   file (in this case a =.el=-file).
+   The =loader.el= should mirror the source blocks in the =loader.org=. 
+   We can use =C-c C-v t= to run =org-babel-tangle=, which extracts the
+   code blocks from the current file into a source-specific file (in 
+   this case a =.el=-file).
 
    To avoid doing this each time a change is made we can add a function to
    the =after-save-hook= ensuring to always tangle and byte-compile the
@@ -107,11 +82,11 @@
      "If the current buffer is 'init.org' the code-blocks are
    tangled, and the tangled file is compiled."
      (when (equal (buffer-file-name)
-                  (expand-file-name (concat user-emacs-directory "init.org")))
+                  (expand-file-name (concat user-emacs-directory "loader.org")))
        ;; Avoid running hooks when tangling.
        (let ((prog-mode-hook nil))
          (org-babel-tangle)
-         (byte-compile-file (concat user-emacs-directory "init.el")))))
+         (byte-compile-file (concat user-emacs-directory "loader.el")))))
 
    (add-hook 'after-save-hook 'tangle-init)
    #+END_SRC
@@ -130,76 +105,133 @@
 
 ** Packages
 
-   Managing extensions for Emacs is simplified using =package= which is
-   built in to Emacs 24 and newer. To load downloaded packages we need to
-   initialize =package=. =cl= is a library that contains many functions from
-   Common Lisp, and comes in handy quite often, so we want to make sure it's
-   loaded, along with =package=, which is obviously needed.
-
-   #+BEGIN_SRC emacs-lisp
-   (require 'cl)
-   (require 'package)
-   (package-initialize)
-   #+END_SRC
+   Managing extensions and downloading packages for Emacs is simplified using =package= 
+   which is built in to Emacs 24 and newer. To load downloaded packages we need to
+   initialize =package=. =cl-lib= is a library that contains many functions from
+   Common Lisp, and comes in handy quite often, so we want to make sure it's loaded, 
+   along with =package=, which is obviously needed.
 
    Packages can be fetched from different mirrors, [[http://melpa.milkbox.net/#/][melpa]] is the largest
-   archive and is well maintained.
+   archive and is well maintained. Install =use-package= in order to require
+   packages and manage hooks and binds in a modular way.
 
    #+BEGIN_SRC emacs-lisp
+   (require 'cl-lib)
+   (require 'package)
    (setq package-archives
          '(("gnu" . "http://elpa.gnu.org/packages/")
            ("org" . "http://orgmode.org/elpa/")
            ("melpa" . "https://melpa.org/packages/")
            ("melpa-stable" . "https://stable.melpa.org/packages/")))
+   (package-initialize)
 
-   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+   (unless (package-installed-p 'use-package)
+     (package-refresh-contents)
+     (package-install 'use-package))
+
+   (eval-when-compile
+     (require 'use-package))
+   ; Diminished modes from modeline
+   (require 'diminish)
+   (require 'bind-key)
    #+END_SRC
 
    The configuration assumes that the packages listed below are
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-   (let* ((packages
-           '(auto-compile         ; automatically compile Emacs Lisp libraries
-             cider                ; Clojure Interactive Development Environment
-             company              ; Modular text completion framework
-             define-word          ; display the definition of word at point
-             diminish             ; Diminished modes from modeline
-             drag-stuff           ; Drag stuff around in Emacs
-             expand-region        ; Increase selected region by semantic units
-             focus                ; Dim color of text in surrounding sections
-             idle-require         ; load elisp libraries while Emacs is idle
-             geiser               ; GNU Emacs and Scheme talk to each other
-             git-gutter-fringe    ; Fringe version of git-gutter.el
-             golden-ratio         ; Automatic resizing windows to golden ratio
-             haskell-mode         ; A Haskell editing mode
-             helm                 ; Incremental and narrowing framework
-             helm-company         ; Helm interface for company-mode
-             helm-projectile      ; Helm integration for Projectile
-             helm-swoop           ; Efficiently hopping squeezed lines
-             jedi                 ; Python auto-completion for Emacs
-             js2-mode             ; Improved JavaScript editing mode
-             magit                ; control Git from Emacs
-             markdown-mode        ; Emacs Major mode for Markdown-formatted files
-             material-theme       ; A Theme based on Google Material Design
-             matlab-mode          ; MATLAB integration with Emacs
-             maude-mode           ; Emacs mode for the programming language Maude
-             multiple-cursors     ; Multiple cursors for Emacs
-             olivetti             ; Minor mode for a nice writing environment
-             org                  ; Outline-based notes management and organizer
-             paredit              ; minor mode for editing parentheses
-             pdf-tools            ; Emacs support library for PDF files
-             projectile           ; Manage and navigate projects in Emacs easily
-             slime                ; Superior Lisp Interaction Mode for Emacs
-             try))                ; Try out Emacs packages
-          ;; Remove all packages already installed
-          (packages (remove-if 'package-installed-p packages)))
-     (when packages
-       (ignore-errors (package-refresh-contents)
-                      (mapcar 'package-install packages)
-                      ;; This package is only relevant for Mac OS X.
-                      (when (memq window-system '(mac ns))
-                        (package-install 'exec-path-from-shell)))))
+   ; Automatically compile Emacs Lisp libraries
+   (use-package auto-compile
+     :ensure t)
+   ; Does asynchronous processing in Emacs
+   (use-package async
+     :ensure t)
+   ; Clojure Interactive Development Environment
+   (use-package cider
+     :ensure t
+     :pin melpa-stable)
+   ; Modular text completion framework
+   (use-package company
+     :ensure t)
+   ; display the definition of word at point
+   (use-package define-word
+     :ensure t)
+   ; Increase selected region by semantic units
+   (use-package expand-region
+     :ensure t)
+   ; GNU Emacs and Scheme talk to each other
+   (use-package geiser 
+     :ensure t)
+   ; Fringe version of git-gutter.el
+   (use-package git-gutter-fringe
+     :ensure t)
+   ; Automatic resizing windows to golden ratio
+   (use-package golden-ratio
+     :ensure t)
+   ; Incremental and narrowing framework
+   (use-package helm
+     :ensure t)
+   ; Helm interface for company-mode;
+   (use-package helm-company
+     :ensure t)
+   ; Helm integration for Projectile
+   (use-package helm-projectile
+     :ensure t)
+   ; Efficiently hopping squeezed lines
+   (use-package helm-swoop
+     :ensure t)
+   ; Python auto-completion for Emacs
+   (use-package jedi
+     :ensure t)
+   ; Improved JavaScript editing mode
+   (use-package js2-mode
+     :ensure t)
+   ; Control Git from Emacs
+   (use-package magit
+     :ensure t)
+   ; Emacs Major mode for Markdown-formatted files
+   (use-package markdown-mode
+     :ensure t)
+   ; Port of the popular TextMate theme by Wimer Hazenberg
+   (use-package monokai-theme
+     :ensure t)
+   ; Multiple cursors for Emacs
+   (use-package multiple-cursors
+     :ensure t)
+   ; Minor mode for a nice writing environment
+   (use-package olivetti
+     :ensure t)
+   ; Outline-based notes management and organizer
+   (use-package org
+     :ensure t)
+   ; Install all contrib files to org
+   (use-package org-plus-contrib
+     :ensure t)
+   ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
+   (use-package monokai-theme
+     :ensure t)
+   ; Minor mode for editing parentheses
+   (use-package paredit
+     :ensure t)
+   ; Emacs support library for PDF files
+   (use-package pdf-tools
+     :ensure t)
+   ; Manage and navigate projects in Emacs easily
+   (use-package projectile
+     :ensure t)
+   ; Superior Lisp Interaction Mode for Emacs
+   (use-package slime
+     :ensure t)
+   ; Try out Emacs packages without installation
+   (use-package try
+     :ensure t)
+   ; An awsome low contrast theme          
+   (use-package zenburn-theme
+     :ensure t)
+   ;; This package is only relevant for Mac OS X.
+   (when (memq window-system '(ns))
+     (use-package exec-path-from-shell
+       :ensure t))
    #+END_SRC
 
 ** Mac OS X
@@ -212,7 +244,7 @@
    =Command=-key as the =Meta=-key.
 
    #+BEGIN_SRC emacs-lisp
-   (when (memq window-system '(mac ns))
+   (when (memq window-system '(ns))
      (setq ns-pop-up-frames nil
            mac-option-modifier nil
            mac-command-modifier 'meta
@@ -233,14 +265,11 @@
    (require 'idle-require)             ; Need in order to use idle-require
 
    (dolist (feature
-            '(auto-compile             ; auto-compile .el files
-              jedi                     ; auto-completion for python
-              matlab                   ; matlab-mode
-              ob-matlab                ; org-babel matlab
-              ox-latex                 ; the latex-exporter (from org)
+            '(auto-compile             ; Auto-compile .el files
+              jedi                     ; Auto-completion for python
+              ox-latex                 ; The latex-exporter (from org)
               ox-md                    ; Markdown exporter (from org)
-              recentf                  ; recently opened files
-              tex-mode))               ; TeX, LaTeX, and SliTeX mode commands
+              recentf))                ; Recently opened files
      (idle-require feature))
 
    (setq idle-require-idle-delay 5)
@@ -361,7 +390,6 @@
               column-number-mode           ; Show column number in mode line
               delete-selection-mode        ; Replace selected text
               dirtrack-mode                ; directory tracking in *shell*
-              drag-stuff-global-mode       ; Drag stuff around
               global-company-mode          ; Auto-completion everywhere
               global-git-gutter-mode       ; Show changes latest commit
               global-prettify-symbols-mode ; Greek letters should look greek
@@ -374,24 +402,23 @@
    (when (version< emacs-version "24.4")
      (eval-after-load 'auto-compile
        '((auto-compile-on-save-mode 1))))  ; compile .el files on save
-
    #+END_SRC
 
 ** Visual
 
-   Change the color-theme to =leuven=.
+   Change the color-theme to =zenburn=.
 
    #+BEGIN_SRC emacs-lisp
-   (load-theme 'leuven t)
+   (load-theme 'zenburn t)
    #+END_SRC
 
-   =leuven= is my preferred light theme, but =monokai= makes a very nice
-   dark theme. I want to be able to cycle between these.
+   =zenburn= is my preferred low contrast theme, but =monokai= makes a good
+   default dark theme. I want to be able to cycle between these.
 
    #+BEGIN_SRC emacs-lisp
    (defun cycle-themes ()
      "Returns a function that lets you cycle your themes."
-     (lexical-let ((themes '#1=(leuven material . #1#)))
+     (lexical-let ((themes '#1=(zenburn monokai . #1#)))
        (lambda ()
          (interactive)
          ;; Rotates the thme cycle and changes the current theme.
@@ -1199,36 +1226,6 @@
    # (add-hook 'python-mode-hook 'jedi:ac-setup)
    # #+END_SRC
 
-** Haskell
-
-   =haskell-doc-mode= is similar to =eldoc=, it displays documentation in
-   the echo area. Haskell has several indentation modes - I prefer using
-   =haskell-indent=.
-
-   #+BEGIN_SRC emacs-lisp
-   (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-   (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-   #+END_SRC
-
-** Maude
-
-   Use =---= for comments in Maude.
-
-   #+BEGIN_SRC emacs-lisp
-   (add-hook 'maude-mode-hook
-             (lambda ()
-               (setq-local comment-start "---")))
-   #+END_SRC
-
-** Matlab
-
-   =Matlab-mode= works pretty good out of the box, but we can do without the
-   splash screen.
-
-   #+BEGIN_SRC emacs-lisp
-   (eval-after-load 'matlab
-     '(add-to-list 'matlab-shell-command-switches "-nosplash"))
-   #+END_SRC
 * Key bindings
 
   Inspired by [[http://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs][this StackOverflow post]] I keep a =custom-bindings-map= that
@@ -1319,7 +1316,7 @@
     (lambda () (interactive) (org-agenda nil "n")))
   #+END_SRC
 
-** Bindings for functions defined [[sec:defuns][above]].
+** Bindings for functions defined [[sec:defuns][above]]
 
   #+BEGIN_SRC emacs-lisp
   (define-key global-map          (kbd "M-p")     'jump-to-previous-like-this)
@@ -1336,11 +1333,6 @@
   (define-key custom-bindings-map (kbd "C-c j")   'cycle-spacing-delete-newlines)
   (define-key custom-bindings-map (kbd "C-c d")   'duplicate-thing)
   (define-key custom-bindings-map (kbd "<C-tab>") 'tidy)
-  (define-key custom-bindings-map (kbd "C-c C-q")
-    '(lambda ()
-       (interactive)
-       (focus-mode 1)
-       (focus-read-only-mode 1)))
   (with-eval-after-load 'org
     (define-key org-mode-map (kbd "C-'") 'org-sync-pdf))
   #+END_SRC
@@ -1352,12 +1344,12 @@
   (define-minor-mode custom-bindings-mode
     "A mode that activates custom-bindings."
     t nil custom-bindings-map)
-  #+END_SRC
+  #+END_SR
 * License
 
   My Emacs configurations written in Org mode.
 
-  Copyright (c) 2013 - 2015 Lars Tveito
+  Copyright (c) 2013 - 2015 Anderson Freitas
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
