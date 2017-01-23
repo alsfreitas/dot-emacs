@@ -201,12 +201,10 @@
    ; Minor mode for a nice writing environment
    (use-package olivetti
      :ensure t)
-   ; Outline-based notes management and organizer
+   ; Outline-based notes management and organizer. All contrib files are also installed
    (use-package org
-     :ensure t)
-   ; Install all contrib files to org
-   (use-package org-plus-contrib
-     :ensure t)
+     :ensure org-plus-contrib
+     :pin org)
    ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
    (use-package monokai-theme
      :ensure t)
@@ -278,7 +276,7 @@
    buffer-local variable's default value.
 
    #+BEGIN_SRC emacs-lisp
-   (setq-default fill-column 79                    ; Maximum line width
+   (setq-default fill-column 80                    ; Maximum line width
                  truncate-lines t                  ; Don't fold lines
                  indent-tabs-mode nil              ; Use spaces instead of tabs
                  split-width-threshold 100         ; Split verticly by default
