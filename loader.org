@@ -186,7 +186,8 @@
    ; Improved JavaScript editing mode
    (use-package js2-mode
      :ensure t)
-   ; Control Git from Emacs
+   ; Control Git from Emacs. In order to use =magit= one should have git version >=
+   ; 1.94 installed
    (use-package magit
      :ensure t)
    ; Emacs Major mode for Markdown-formatted files
@@ -440,7 +441,10 @@
    drawback is the =pdf-tools-install= (which has to be executed before the
    package can be used) takes a couple of /seconds/ to execute. Instead of
    running it at init-time, we'll run it whenever a PDF is opened. Note that
-   it's only slow on the first run!
+   it's only slow on the first run! Another important thing to note is that
+   =glib= and =poppler= libs must be present in order to correctly compile
+   =pdf-tools=. For example, using /brew install glib poppler/ in OSX shoud be
+   enough (this gonna take a looong time).
 
    #+BEGIN_SRC emacs-lisp
    (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
