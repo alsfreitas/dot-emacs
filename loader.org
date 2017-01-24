@@ -355,9 +355,8 @@
      (funcall mode 0))
    #+END_SRC
 
-   Let's apply the same technique for enabling modes that are disabled by
-   default.
-
+   Let's apply the same technique for enabling modes that are disabled by default.
+                                        
    #+BEGIN_SRC emacs-lisp
    (dolist (mode
             '(abbrev-mode                  ; E.g. sopl -> System.out.println
@@ -406,27 +405,6 @@
           (set-face-attribute 'default nil :font "Source Code Pro-13"))
          ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
-   #+END_SRC
-
-   [[http://www.eskimo.com/~seldon/diminish.el][diminish.el]] allows you to hide or abbreviate their presence in the
-   modeline. I rarely look at the modeline to find out what minor-modes are
-   enabled, so I disable every global minor-mode, and some for lisp editing.
-
-   To ensure that the mode is loaded before diminish it, we should use
-   ~with-eval-after-load~. To avoid typing this multiple times a small macro
-   is provided.
-
-   #+BEGIN_SRC emacs-lisp
-   (defmacro safe-diminish (file mode &optional new-name)
-     `(with-eval-after-load ,file
-        (diminish ,mode ,new-name)))
-
-   (diminish 'auto-fill-function)
-   (safe-diminish "eldoc" 'eldoc-mode)
-   (safe-diminish "flyspell" 'flyspell-mode)
-   (safe-diminish "helm-mode" 'helm-mode)
-   (safe-diminish "projectile" 'projectile-mode)
-   (safe-diminish "paredit" 'paredit-mode "()")
    #+END_SRC
 
    [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]] gives a great visual indication of where you've made
