@@ -530,19 +530,10 @@
                   'font-lock-face 'calendar-iso-week-face))))
    #+END_SRC
 
-   Evaluate the =calendar-show-week= function.
-
    #+BEGIN_SRC emacs-lisp
-   (calendar-show-week t)
-   #+END_SRC
-
-   Set Monday as the first day of the week, and set my location.
-
-   #+BEGIN_SRC emacs-lisp
-   (setq calendar-week-start-day 1
-         calendar-latitude 60.0
-         calendar-longitude 10.7
-         calendar-location-name "Oslo, Norway")
+   (setq calendar-latitude -22.9083
+         calendar-longitude -43.1971
+         calendar-location-name "Rio de Janeiro, Brasil")
    #+END_SRC
 
 ** mu4e and offlineimap
