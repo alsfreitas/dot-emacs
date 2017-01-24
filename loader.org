@@ -140,98 +140,123 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-   ; Automatically compile Emacs Lisp libraries
-   (use-package auto-compile
-     :ensure t)
-   ; Does asynchronous processing in Emacs
-   (use-package async
-     :ensure t)
-   ; Clojure Interactive Development Environment
-   (use-package cider
-     :ensure t
-     :pin melpa-stable)
-   ; Modular text completion framework
-   (use-package company
-     :ensure t)
-   ; display the definition of word at point
-   (use-package define-word
-     :ensure t)
-   ; Increase selected region by semantic units
-   (use-package expand-region
-     :ensure t)
-   ; GNU Emacs and Scheme talk to each other
-   (use-package geiser 
-     :ensure t)
-   ; Fringe version of git-gutter.el
-   (use-package git-gutter-fringe
-     :ensure t)
-   ; Automatic resizing windows to golden ratio
-   (use-package golden-ratio
-     :ensure t)
-   ; Incremental and narrowing framework
-   (use-package helm
-     :ensure t)
-   ; Helm interface for company-mode;
-   (use-package helm-company
-     :ensure t)
-   ; Helm integration for Projectile
-   (use-package helm-projectile
-     :ensure t)
-   ; Efficiently hopping squeezed lines
-   (use-package helm-swoop
-     :ensure t)
-   ; Python auto-completion for Emacs
-   (use-package jedi
-     :ensure t)
-   ; Improved JavaScript editing mode
-   (use-package js2-mode
-     :ensure t)
-   ; Control Git from Emacs. In order to use =magit= one should have git version >=
-   ; 1.94 installed
-   (use-package magit
-     :ensure t)
-   ; Emacs Major mode for Markdown-formatted files
-   (use-package markdown-mode
-     :ensure t)
-   ; Port of the popular TextMate theme by Wimer Hazenberg
-   (use-package monokai-theme
-     :ensure t)
-   ; Multiple cursors for Emacs
-   (use-package multiple-cursors
-     :ensure t)
-   ; Minor mode for a nice writing environment
-   (use-package olivetti
-     :ensure t)
-   ; Outline-based notes management and organizer. All contrib files are also installed
-   (use-package org
-     :ensure org-plus-contrib
-     :pin org)
-   ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
-   (use-package monokai-theme
-     :ensure t)
-   ; Minor mode for editing parentheses
-   (use-package paredit
-     :ensure t)
-   ; Emacs support library for PDF files
-   (use-package pdf-tools
-     :ensure t)
-   ; Manage and navigate projects in Emacs easily
-   (use-package projectile
-     :ensure t)
-   ; Superior Lisp Interaction Mode for Emacs
-   (use-package slime
-     :ensure t)
-   ; Try out Emacs packages without installation
-   (use-package try
-     :ensure t)
-   ; An awsome low contrast theme          
-   (use-package zenburn-theme
-     :ensure t)
-   ;; This package is only relevant for Mac OS X.
-   (when (memq window-system '(ns))
-     (use-package exec-path-from-shell
-       :ensure t))
+    ; Automatically compile Emacs Lisp libraries
+    (use-package auto-compile
+      :ensure t)
+    ; Does asynchronous processing in Emacs
+    (use-package async
+      :ensure t)
+    ; Clojure Interactive Development Environment
+    (use-package cider
+      :ensure t
+      :pin melpa-stable)
+    ; Adds a lot of powerful refactoring facilities to Cider
+    (use-package clj-refactor
+      :ensure t
+      :config
+      (add-hook 'clojure-mode-hook #'clj-refactor-mode))
+
+    ; Modular text completion framework
+    (use-package company
+      :ensure t
+      :bind (("C-d" . company-show-doc-buffer)
+             ("C-n" . company-select-next)
+             ("C-p" . company-select-previous)
+             ("TAB" . company-complete)))
+
+    ; display the definition of word at point
+    (use-package define-word
+      :ensure t)
+    ; Increase selected region by semantic units
+    (use-package expand-region
+      :ensure t)
+    ; GNU Emacs and Scheme talk to each other
+    (use-package geiser 
+      :ensure t)
+    ; Fringe version of git-gutter.el
+    (use-package git-gutter-fringe
+      :ensure t)
+    ; Automatic resizing windows to golden ratio
+    (use-package golden-ratio
+      :ensure t)
+    ; It's hard to remember keyboard shortcuts. This package pops up help after a short delay. 
+    (use-package guide-key
+      :defer t
+      :diminish guide-key-mode
+      :config
+      (progn
+        (setq guide-key/guide-key-sequence t)
+        (guide-key-mode 1)))  ; Enable guide-key-mode
+    ; Incremental and narrowing framework
+    (use-package helm
+      :ensure t)
+    ; Helm interface for company-mode;
+    (use-package helm-company
+      :ensure t)
+    ; Helm integration for Projectile
+    (use-package helm-projectile
+      :ensure t)
+    ; Efficiently hopping squeezed lines
+    (use-package helm-swoop
+      :ensure t)
+    ; Python auto-completion for Emacs
+    (use-package jedi
+      :ensure t)
+    ; Improved JavaScript editing mode
+    (use-package js2-mode
+      :ensure t)
+    ; Control Git from Emacs. In order to use =magit= one should have git version >=
+    ; 1.94 installed
+    (use-package magit
+      :ensure t)
+    ; Emacs Major mode for Markdown-formatted files
+    (use-package markdown-mode
+      :ensure t)
+    ; Port of the popular TextMate theme by Wimer Hazenberg
+    (use-package monokai-theme
+      :ensure t)
+    ; Multiple cursors for Emacs
+    (use-package multiple-cursors
+      :ensure t)
+    ; Minor mode for a nice writing environment
+    (use-package olivetti
+      :ensure t)
+    ; Outline-based notes management and organizer. All contrib files are also installed
+    (use-package org
+      :ensure org-plus-contrib
+      :pin org)
+    ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
+    (use-package monokai-theme
+      :ensure t)
+    ;; Install paredit, enable in elisp and Clojure modes
+    (use-package paredit
+      :ensure t
+      :config
+      (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+      (add-hook 'clojure-mode-hook #'enable-paredit-mode)
+      )
+    ; Emacs support library for PDF files
+    (use-package pdf-tools
+      :ensure t)
+    ; Manage and navigate projects in Emacs easily
+    (use-package projectile
+      :ensure t)
+    ; Superior Lisp Interaction Mode for Emacs
+    (use-package slime
+      :ensure t)
+    ; Try out Emacs packages without installation
+    (use-package try
+      :ensure t)
+    ; An awsome low contrast theme          
+    (use-package zenburn-theme
+      :ensure t)
+    ;; This package is only relevant for Mac OS X.
+    (when (memq window-system '(ns))
+      (use-package exec-path-from-shell
+        :ensure t))
    #+END_SRC
+
+   #+RESULTS:
 
 ** Mac OS X
 
@@ -695,7 +720,6 @@
    ="this string"=, because the quotation marks causes problems.
 
    #+BEGIN_SRC emacs-lisp
-   ;;(require 'org)
    (eval-after-load "org"
      '(progn
         (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\n,")
@@ -1005,54 +1029,6 @@
       '(setq geiser-active-implementations '(guile)))
     #+END_SRC
 
-** Java and C
-
-   The =c-mode-common-hook= is a general hook that work on all C-like
-   languages (C, C++, Java, etc...). I like being able to quickly compile
-   using =C-c C-c= (instead of =M-x compile=), a habit from =latex-mode=.
-
-   #+BEGIN_SRC emacs-lisp
-   (defun c-setup ()
-     (local-set-key (kbd "C-c C-c") 'compile))
-
-   (add-hook 'c-mode-common-hook 'c-setup)
-   #+END_SRC
-
-   Some statements in Java appear often, and become tedious to write
-   out. We can use abbrevs to speed this up.
-
-   #+BEGIN_SRC emacs-lisp
-   (define-abbrev-table 'java-mode-abbrev-table
-     '(("psv" "public static void main(String[] args) {" nil 0)
-       ("sopl" "System.out.println" nil 0)
-       ("sop" "System.out.printf" nil 0)))
-   #+END_SRC
-
-   To be able to use the abbrev table defined above, =abbrev-mode= must be
-   activated.
-
-   #+BEGIN_SRC emacs-lisp
-   (defun java-setup ()
-     (abbrev-mode t)
-     (setq-local compile-command (concat "javac " (buffer-name))))
-
-   (add-hook 'java-mode-hook 'java-setup)
-   #+END_SRC
-
-** Assembler
-
-   When writing assembler code I use =#= for comments. By defining
-   =comment-start= we can add comments using =M-;= like in other programming
-   modes. Also in assembler should one be able to compile using =C-c C-c=.
-
-   #+BEGIN_SRC emacs-lisp
-   (defun asm-setup ()
-     (setq comment-start "#")
-     (local-set-key (kbd "C-c C-c") 'compile))
-
-   (add-hook 'asm-mode-hook 'asm-setup)
-   #+END_SRC
-
 ** LaTeX and org-mode LaTeX export
 
    =.tex=-files should be associated with =latex-mode= instead of
@@ -1118,61 +1094,6 @@
        (custom-set-variables '(org-export-allow-bind-keywords t))))
    #+END_SRC
 
-** Markdown
-
-   This makes =.md=-files open in =markdown-mode=.
-
-   #+BEGIN_SRC emacs-lisp
-   (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-   #+END_SRC
-
-   I sometimes use a specialized markdown format, where inline math-blocks
-   can be achieved by surrounding a LaTeX formula with =$math$= and
-   =$/math$=. Writing these out became tedious, so I wrote a small function.
-
-   #+BEGIN_SRC emacs-lisp
-   (defun insert-markdown-inline-math-block ()
-     "Inserts an empty math-block if no region is active, otherwise wrap a
-   math-block around the region."
-     (interactive)
-     (let* ((beg (region-beginning))
-            (end (region-end))
-            (body (if (region-active-p) (buffer-substring beg end) "")))
-       (when (region-active-p)
-         (delete-region beg end))
-       (insert (concat "$math$ " body " $/math$"))
-       (search-backward " $/math$")))
-   #+END_SRC
-
-   Most of my writing in this markup is in Norwegian, so the dictionary is
-   set accordingly. The markup is also sensitive to line breaks, so
-   =auto-fill-mode= is disabled. Of course we want to bind our lovely
-   function to a key!
-
-   #+BEGIN_SRC emacs-lisp
-   (add-hook 'markdown-mode-hook
-             (lambda ()
-               (auto-fill-mode 0)
-               (visual-line-mode 1)
-               (ispell-change-dictionary "norsk")
-               (local-set-key (kbd "C-c b") 'insert-markdown-inline-math-block)) t)
-   #+END_SRC
-
-** Python
-
-   # [[http://tkf.github.io/emacs-jedi/released/][Jedi]] offers very nice auto completion for =python-mode=. Mind that it is
-   # dependent on some python programs as well, so make sure you follow the
-   # instructions from the site.
-
-   # #+BEGIN_SRC emacs-lisp
-   # ;; (setq jedi:server-command
-   # ;;       (cons "python3" (cdr jedi:server-command))
-   # ;;       python-shell-interpreter "python3")
-   # (add-hook 'python-mode-hook 'jedi:setup)
-   # (setq jedi:complete-on-dot t)
-   # (add-hook 'python-mode-hook 'jedi:ac-setup)
-   # #+END_SRC
-
 * Key bindings
 
   Inspired by [[http://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs][this StackOverflow post]] I keep a =custom-bindings-map= that
@@ -1212,18 +1133,6 @@
 
   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C-c m") 'magit-status)
-  #+END_SRC
-
-** Bindings for [[http://company-mode.github.io/][company-mode]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key company-active-map (kbd "C-d") 'company-show-doc-buffer)
-  (define-key company-active-map (kbd "C-n") 'company-select-next)
-  (define-key company-active-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete)
-
-  (define-key company-mode-map (kbd "C-:") 'helm-company)
-  (define-key company-active-map (kbd "C-:") 'helm-company)
   #+END_SRC
 
 ** Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
@@ -1296,7 +1205,7 @@
 
   My Emacs configurations written in Org mode.
 
-  Copyright (c) 2013 - 2015 Anderson Freitas
+  Copyright (c) 2015 Anderson Freitas
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
