@@ -140,120 +140,158 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-    ; Automatically compile Emacs Lisp libraries
-    (use-package auto-compile
-      :ensure t)
-    ; Does asynchronous processing in Emacs
-    (use-package async
-      :ensure t)
-    ; Clojure Interactive Development Environment
-    (use-package cider
-      :ensure t
-      :pin melpa-stable)
-    ; Adds a lot of powerful refactoring facilities to Cider
-    (use-package clj-refactor
-      :ensure t
-      :config
-      (add-hook 'clojure-mode-hook #'clj-refactor-mode))
+       ; Automatically compile Emacs Lisp libraries
+       (use-package auto-compile
+         :ensure t)
+       ; Does asynchronous processing in Emacs
+       (use-package async
+         :ensure t)
+       ; Clojure Interactive Development Environment
+       (use-package cider
+         :ensure t
+         :pin melpa-stable)
 
-    ; Modular text completion framework
-    (use-package company
-      :ensure t
-      :bind (("C-d" . company-show-doc-buffer)
-             ("C-n" . company-select-next)
-             ("C-p" . company-select-previous)
-             ("TAB" . company-complete)))
+       ; Adds a lot of powerful refactoring facilities to Cider
+       (use-package clj-refactor
+         :ensure t
+         :config
+         (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
-    ; display the definition of word at point
-    (use-package define-word
-      :ensure t)
-    ; Increase selected region by semantic units
-    (use-package expand-region
-      :ensure t)
-    ; GNU Emacs and Scheme talk to each other
-    (use-package geiser 
-      :ensure t)
-    ; Fringe version of git-gutter.el
-    (use-package git-gutter-fringe
-      :ensure t)
-    ; Automatic resizing windows to golden ratio
-    (use-package golden-ratio
-      :ensure t)
-    ; It's hard to remember keyboard shortcuts. This package pops up help after a short delay. 
-    (use-package guide-key
-      :defer t
-      :diminish guide-key-mode
-      :config
-      (progn
-        (setq guide-key/guide-key-sequence t)
-        (guide-key-mode 1)))  ; Enable guide-key-mode
-    ; Incremental and narrowing framework
-    (use-package helm
-      :ensure t)
-    ; Helm interface for company-mode;
-    (use-package helm-company
-      :ensure t)
-    ; Helm integration for Projectile
-    (use-package helm-projectile
-      :ensure t)
-    ; Efficiently hopping squeezed lines
-    (use-package helm-swoop
-      :ensure t)
-    ; Python auto-completion for Emacs
-    (use-package jedi
-      :ensure t)
-    ; Improved JavaScript editing mode
-    (use-package js2-mode
-      :ensure t)
-    ; Control Git from Emacs. In order to use =magit= one should have git version >=
-    ; 1.94 installed
-    (use-package magit
-      :ensure t)
-    ; Emacs Major mode for Markdown-formatted files
-    (use-package markdown-mode
-      :ensure t)
-    ; Port of the popular TextMate theme by Wimer Hazenberg
-    (use-package monokai-theme
-      :ensure t)
-    ; Multiple cursors for Emacs
-    (use-package multiple-cursors
-      :ensure t)
-    ; Minor mode for a nice writing environment
-    (use-package olivetti
-      :ensure t)
-    ; Outline-based notes management and organizer. All contrib files are also installed
-    (use-package org
-      :ensure org-plus-contrib
-      :pin org)
-    ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
-    (use-package monokai-theme
-      :ensure t)
-    ;; Install paredit, enable in elisp and Clojure modes
-    (use-package paredit
-      :ensure t
-      :config
-      (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
-      (add-hook 'clojure-mode-hook #'enable-paredit-mode)
-      )
-    ; Emacs support library for PDF files
-    (use-package pdf-tools
-      :ensure t)
-    ; Manage and navigate projects in Emacs easily
-    (use-package projectile
-      :ensure t)
-    ; Superior Lisp Interaction Mode for Emacs
-    (use-package slime
-      :ensure t)
-    ; Try out Emacs packages without installation
-    (use-package try
-      :ensure t)
-    ; An awsome low contrast theme          
-    (use-package zenburn-theme
-      :ensure t)
-    ;; This package is only relevant for Mac OS X.
-    (when (memq window-system '(ns))
-      (use-package exec-path-from-shell
-        :ensure t))
+       ; Modular text completion framework
+       (use-package company
+         :ensure t
+         :bind (("C-d" . company-show-doc-buffer)
+                ("C-n" . company-select-next)
+                ("C-p" . company-select-previous)
+                ("TAB" . company-complete)))
+
+       ; display the definition of word at point
+       (use-package define-word
+         :ensure t
+         :bind ("C-c D" . define-word-at-point))
+
+       ; Increase selected region by semantic units
+       (use-package expand-region
+         :ensure t
+         :bind (("C->" . er/expand-region)
+               ("C-<" . er/contract-region)))
+
+       ; GNU Emacs and Scheme talk to each other
+       (use-package geiser 
+         :ensure t)
+       ; Fringe version of git-gutter.el
+       (use-package git-gutter-fringe
+         :ensure t)
+       ; Automatic resizing windows to golden ratio
+       (use-package golden-ratio
+         :ensure t)
+       ; It's hard to remember keyboard shortcuts. This package pops up help after a short delay. 
+       (use-package guide-key
+         :ensure t
+         :defer t
+         :diminish guide-key-mode
+         :config
+         (progn
+           (setq guide-key/guide-key-sequence t)
+           (guide-key-mode 1))) ; Enable guide-key-mode
+       ; Incremental and narrowing framework
+       (use-package helm
+         :ensure t)
+       ; Helm interface for company-mode;
+       (use-package helm-company
+         :ensure t)
+       ; Helm integration for Projectile
+       (use-package helm-projectile
+         :ensure t)
+       ; Efficiently hopping squeezed lines
+       (use-package helm-swoop
+         :ensure t)
+       ; Python auto-completion for Emacs
+       (use-package jedi
+         :ensure t)
+       ; Improved JavaScript editing mode
+       (use-package js2-mode
+         :ensure t)
+
+       ; Control Git from Emacs. In order to use =magit= one should have git version >=
+       ; 1.94 installed
+       (use-package magit
+         :ensure t
+         :bind ("C-c m" . magit-status))
+
+       ; Emacs Major mode for Markdown-formatted files
+       (use-package markdown-mode
+         :ensure t)
+       ; Port of the popular TextMate theme by Wimer Hazenberg
+       (use-package monokai-theme
+         :ensure t)
+       ; Multiple cursors for Emacs
+       (use-package multiple-cursors
+         :ensure t)
+       ; Minor mode for a nice writing environment
+       (use-package olivetti
+         :ensure t)
+       ; Outline-based notes management and organizer. All contrib files are also installed
+       (use-package org
+         :ensure org-plus-contrib
+         :pin org)
+       ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
+       (use-package monokai-theme
+         :ensure t)
+       ;; Install paredit, enable in elisp and Clojure modes
+       (use-package paredit
+         :ensure t
+         :config
+         (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+         (add-hook 'clojure-mode-hook #'enable-paredit-mode))
+       ; Emacs support library for PDF files
+       (use-package pdf-tools
+         :ensure t)
+       ; Manage and navigate projects in Emacs easily
+       (use-package projectile
+         :ensure t)
+       ; Superior Lisp Interaction Mode for Emacs
+       (use-package slime
+         :ensure t)
+       ; Try out Emacs packages without installation
+       (use-package try
+         :ensure t)
+
+       ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
+       (use-package undo-tree
+         :ensure t
+         :init
+         (global-undo-tree-mode))
+
+       ; Whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
+       ; before saving the current buffer, but only if the whitespace in the buffer
+       ; was initially clean. It determines this by quickly checking to see if
+       ; whitespace-cleanup would have any effect on the buffer.
+       (use-package whitespace-cleanup-mode
+         :ensure t
+         :init
+         (global-whitespace-cleanup-mode t))
+
+       (use-package yasnippet
+         :ensure t
+         :defer t
+         :init
+         (yas-global-mode 1)
+         :config
+         (use-package f
+           :ensure t)
+         (let ((snippets-dir (expand-file-name "snippets" user-emacs-directory)))
+            (if (f-directory? snippets-dir)
+               (setq yas-snippet-dirs snippets-dir)))) 
+
+       ; An awsome low contrast theme          
+       (use-package zenburn-theme
+         :ensure t)
+
+       ;; This package is only relevant for Mac OS X.
+       (when (memq window-system '(ns))
+         (use-package exec-path-from-shell
+           :ensure t))
    #+END_SRC
 
    #+RESULTS:
@@ -1108,19 +1146,6 @@
     "A keymap for custom bindings.")
   #+END_SRC
 
-** Bindings for [[https://github.com/abo-abo/define-word][define-word]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C-c D") 'define-word-at-point)
-  #+END_SRC
-
-** Bindings for [[https://github.com/magnars/expand-region.el][expand-region]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C->")  'er/expand-region)
-  (define-key custom-bindings-map (kbd "C-<")  'er/contract-region)
-  #+END_SRC
-
 ** Bindings for [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]
 
   #+BEGIN_SRC emacs-lisp
@@ -1129,11 +1154,6 @@
   (define-key custom-bindings-map (kbd "C-c n")  'mc/mark-next-like-this)
   #+END_SRC
 
-** Bindings for [[http://magit.github.io][Magit]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C-c m") 'magit-status)
-  #+END_SRC
 
 ** Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
 
