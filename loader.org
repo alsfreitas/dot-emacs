@@ -119,7 +119,8 @@
    (require 'cl-lib)
    (require 'package)
    (setq package-archives
-         '(("gnu" . "http://elpa.gnu.org/packages/")
+         '(("marmalade" . "http://marmalade-repo.org/packages/")
+           ("gnu" . "http://elpa.gnu.org/packages/")
            ("org" . "http://orgmode.org/elpa/")
            ("melpa" . "https://melpa.org/packages/")
            ("melpa-stable" . "https://stable.melpa.org/packages/")))
@@ -140,6 +141,10 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
+   ; We can control the amount of output use-package generates by setting
+   ; use-package-verbose to true
+   (setq use-package-verbose t)
+
    ; Keeps your code always indented, reindenting after every change
    (use-package aggressive-indent
      :ensure t)
@@ -147,6 +152,7 @@
    ; Automatically compile Emacs Lisp libraries
    (use-package auto-compile
      :ensure t)
+
    ; Does asynchronous processing in Emacs
    (use-package async
      :ensure t)
@@ -188,8 +194,6 @@
    ; Provides Emacs font-lock, indentation, navigation and refactoring.
    (use-package clojure-mode
      :ensure t
-     :mode (("\\.clj\\'" . clojure-mode)
-            ("\\.edn\\'" . clojure-mode))
      :init (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
            (add-hook 'clojure-mode-hook #'clj-refactor-mode)
            (add-hook 'clojure-mode-hook #'paredit-mode)
@@ -222,12 +226,15 @@
    ; GNU Emacs and Scheme talk to each other
    (use-package geiser 
      :ensure t)
+
    ; Fringe version of git-gutter.el
    (use-package git-gutter-fringe
      :ensure t)
+
    ; Automatic resizing windows to golden ratio
    (use-package golden-ratio
      :ensure t)
+
    ; It's hard to remember keyboard shortcuts. This package pops up help after a short delay. 
    (use-package guide-key
      :ensure t
@@ -237,21 +244,27 @@
      (progn
        (setq guide-key/guide-key-sequence t)
        (guide-key-mode 1))) ; Enable guide-key-mode
+
    ; Incremental and narrowing framework
    (use-package helm
      :ensure t)
+
    ; Helm interface for company-mode;
    (use-package helm-company
      :ensure t)
+
    ; Helm integration for Projectile
    (use-package helm-projectile
      :ensure t)
+
    ; Efficiently hopping squeezed lines
    (use-package helm-swoop
      :ensure t)
+
    ; Python auto-completion for Emacs
    (use-package jedi
      :ensure t)
+
    ; Improved JavaScript editing mode
    (use-package js2-mode
      :ensure t)
@@ -265,23 +278,29 @@
    ; Emacs Major mode for Markdown-formatted files
    (use-package markdown-mode
      :ensure t)
+
    ; Port of the popular TextMate theme by Wimer Hazenberg
    (use-package monokai-theme
      :ensure t)
+
    ; Multiple cursors for Emacs
    (use-package multiple-cursors
      :ensure t)
+
    ; Minor mode for a nice writing environment
    (use-package olivetti
      :ensure t)
+
    ; Outline-based notes management and organizer. All contrib files are also
    ; installed
    (use-package org
      :ensure org-plus-contrib
      :pin org)
+
    ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
    (use-package monokai-theme
      :ensure t)
+
    ;; Install paredit, enable in elisp and Clojure modes
 
    (use-package paredit
@@ -296,14 +315,22 @@
    ; Manage and navigate projects in Emacs easily
    (use-package projectile
      :ensure t)
+
    ; Highlights delimiters such as parentheses, brackets or braces according to
    ; their depth
    (use-package rainbow-delimiters
-     :ensure t)
+     :ensure t
+     :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+   
+   ; Slamhound rips Clojure ns form apart and reconstructs it.
+   (use-package slamhound
+     :ensure t
+     :commands (slamhound))
 
    ; Superior Lisp Interaction Mode for Emacs
    (use-package slime
      :ensure t)
+
    ; Try out Emacs packages without installation
    (use-package try
      :ensure t)
@@ -326,14 +353,13 @@
    (use-package yasnippet
      :ensure t
      :defer t
-     :init
-     (yas-global-mode 1)
-     :config
-     (use-package f
-       :ensure t)
-     (let ((snippets-dir (expand-file-name "snippets" user-emacs-directory)))
-        (if (f-directory? snippets-dir)
-           (setq yas-snippet-dirs snippets-dir)))) 
+     :init (yas-global-mode 1)
+     :config ; Modern API for working with files and directories in Emacs
+             (use-package f
+               :ensure t)
+             (let ((snippets-dir (expand-file-name "snippets" user-emacs-directory)))
+               (if (f-directory? snippets-dir)
+                 (setq yas-snippet-dirs snippets-dir)))) 
 
    ; An awsome low contrast theme          
    (use-package zenburn-theme
@@ -489,7 +515,7 @@
 
    (when (version< emacs-version "24.4")
      (eval-after-load 'auto-compile
-       '((auto-compile-on-save-mode 1))))  ; compile .el files on save
+       (auto-compile-on-save-mode)))  ; compile .el files on save
    #+END_SRC
 
 ** Visual
