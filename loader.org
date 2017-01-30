@@ -145,7 +145,8 @@
    ; use-package-verbose to true
    (setq use-package-verbose t)
 
-   ; Keeps your code always indented, reindenting after every change
+   ; Keeps your code always indented, reindenting after every change. Multiple
+   ; languages supported.
    (use-package aggressive-indent
      :ensure t)
 
@@ -157,16 +158,28 @@
    (use-package async
      :ensure t)
 
+   ; Jump to things in Emacs tree-style
+   (use-package avy
+     :ensure t
+     :bind ("C-c SPC" . avy-goto-char))
+
    ; Clojure Interactive Development Environment
    (use-package cider
      :ensure t
-     :defer t
+     :pin melpa-stable
      :init
      (add-hook 'cider-mode-hook #'clj-refactor-mode)
-     :pin melpa-stable
-     :diminish subword-mode
      :config
-     (setq 
+     ; Enable eldoc in Clojure (Cider) buffers
+     (add-hook 'cider-mode-hook #'eldoc-mode)
+     ; The use of paredit when editing Clojure (or any other Lisp) code is
+     ; highly recommended. You're probably using it already in your
+     ; clojure-mode buffers (if you're not you probably should). You might
+     ; also want to enable paredit in the REPL buffer as well.
+     (add-hook 'cider-repl-mode-hook #'paredit-mode)
+     (setq
+       ; Controls whether to pop to the REPL buffer on connect.
+       cider-repl-pop-to-buffer-on-connect nil
        ; Useful for debugging
        nrepl-log-messages t
        ; Switch to REPL in this window
@@ -177,7 +190,8 @@
        cider-prompt-save-file-on-load 'always-save 
        ; Syntax highlight all namespaces                
        cider-font-lock-dynamically '(macro core function var) 
-       ; Hide nrepl buffers from menu
+       ; Hide *nrepl-connection* and *nrepl-server* buffers from appearing
+       ; in some buffer switching commands like switch-to-buffer
        nrepl-hide-special-buffers t
        ; Syntax highlight evaluation overlays
        cider-overlays-use-font-lock t)
@@ -209,7 +223,8 @@
      :bind (("C-d" . company-show-doc-buffer)
             ("C-n" . company-select-next)
             ("C-p" . company-select-previous)
-            ("TAB" . company-complete)))
+            ("TAB" . company-complete))
+     :init (add-hook 'after-init-hook #'global-company-mode))
 
    ; display the definition of word at point
    (use-package define-word
@@ -222,6 +237,15 @@
      :ensure t
      :bind (("C->" . er/expand-region)
            ("C-<" . er/contract-region)))
+
+   ; Flyspell highlights incorrect words as soon as they are completed or as
+   ; soon as the TextCursor hits a new word.
+   (use-package flyspell
+     :ensure t
+     :defer t
+     :init (progn
+             (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+             (add-hook 'text-mode-hook 'flyspell-mode)))   
 
    ; GNU Emacs and Scheme talk to each other
    (use-package geiser 
@@ -260,6 +284,62 @@
    ; Efficiently hopping squeezed lines
    (use-package helm-swoop
      :ensure t)
+
+   ; Lets you interactively do things with buffers and files.
+   (use-package ido
+     :init (progn
+             (ido-mode 1)
+             (use-package ido-vertical-mode
+               :ensure t
+               :init (ido-vertical-mode 1))
+             (use-package flx-ido
+               :ensure t
+               :init (flx-ido-mode 1))
+             (use-package ido-ubiquitous
+               :ensure t)
+             (use-package smex
+               :ensure t
+               :init (smex-initialize)
+               :bind ("M-x" . smex)))
+     :config (progn
+               (setq ido-enable-prefix nil
+                     ido-enable-flex-matching t
+                     ido-case-fold t
+                     ido-create-new-buffer 'always
+                     ido-use-filename-at-point 'guess
+                     ido-max-prospects 10)
+               (add-to-list 'ido-ignore-files "\\.DS_Store")))
+
+   ; Awesome interface for nearly everything
+   (use-package ivy
+     :ensure t
+     :diminish (ivy-mode . "")
+     :init (ivy-mode 1)
+     :bind (("C-x b" . ivy-switch-buffer)
+            ("C-c C-r" . ivy-resume))
+     :config (progn
+               (setq ivy-use-virtual-buffers t)
+               (setq ivy-extra-directories nil)
+               (setq ivy-re-builders-alist
+                 ;; allow input not in order
+                 '((t . ivy--regex-ignore-order)))))
+
+   (use-package swiper
+     :ensure t
+     :bind (("M-o" . swiper)))
+
+   ; A collection of Ivy-enhanced versions of common Emacs commands
+   (use-package counsel
+     :ensure t
+     :bind (("C-c h" . counsel-descbinds)
+            ("M-x" . counsel-M-x)
+            ("M-y" . counsel-yank-pop)
+            ("C-c C-r" . counsel-recentf)
+            ; Silver searcher must be installed in order to Counsel-ag work
+            ; properly. See [[https://github.com/ggreer/the_silver_searcher][Silver Searcher]].
+            ("M-p" . counsel-ag)
+            ("C-c l" . counsel-locate)
+            ("C-x C-f" . counsel-find-file)))
 
    ; Python auto-completion for Emacs
    (use-package jedi
@@ -331,6 +411,11 @@
    (use-package slime
      :ensure t)
 
+   ; We want to navigate camelCase words as separate words.
+   (use-package subword
+     :diminish subword-mode
+     :init (global-subword-mode))
+
    ; Try out Emacs packages without installation
    (use-package try
      :ensure t)
@@ -338,8 +423,8 @@
    ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
    (use-package undo-tree
      :ensure t
-     :init
-     (global-undo-tree-mode))
+     :diminish undo-tree-mode
+     :init (global-undo-tree-mode))
 
    ; Whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
    ; before saving the current buffer, but only if the whitespace in the buffer
@@ -368,7 +453,8 @@
    ;; This package is only relevant for Mac OS X.
    (when (memq window-system '(ns))
      (use-package exec-path-from-shell
-       :ensure t))
+       :ensure t
+       :init (exec-path-from-shell-initialize)))
    #+END_SRC
 
    #+RESULTS:
