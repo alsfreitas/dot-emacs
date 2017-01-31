@@ -144,12 +144,17 @@
    ; We can control the amount of output use-package generates by setting
    ; use-package-verbose to true
    (setq use-package-verbose t)
+   
+   ; Quickly switch windows in Emacs
+   (use-package ace-window
+     :ensure t
+     :bind (("C-x o" . ace-window))
+     :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
    ; Keeps your code always indented, reindenting after every change. Multiple
    ; languages supported.
    (use-package aggressive-indent
      :ensure t)
-
    ; Automatically compile Emacs Lisp libraries
    (use-package auto-compile
      :ensure t)
@@ -161,11 +166,13 @@
    ; Jump to things in Emacs tree-style
    (use-package avy
      :ensure t
-     :bind ("C-c SPC" . avy-goto-char))
+     :bind (("C-'" . avy-goto-char)
+            ("C-:" . avy-goto-char-2)))
 
    ; Clojure Interactive Development Environment
    (use-package cider
      :ensure t
+     :defer t
      :pin melpa-stable
      :init
      (add-hook 'cider-mode-hook #'clj-refactor-mode)
@@ -232,6 +239,12 @@
      :bind (("H-d" . define-word-at-point)
             ("H-D" . define-word)))
 
+   ; extends functionalities provided by standard GNU Emacs libraries dired.el,
+   ; dired-aux.el, and dired-x.el.
+   (use-package dired+
+     :ensure t
+     :defer t)
+
    ; Increase selected region by semantic units
    (use-package expand-region
      :ensure t
@@ -242,7 +255,7 @@
    ; soon as the TextCursor hits a new word.
    (use-package flyspell
      :ensure t
-     :defer t
+     :defer 5
      :init (progn
              (add-hook 'prog-mode-hook 'flyspell-prog-mode)
              (add-hook 'text-mode-hook 'flyspell-mode)))   
@@ -271,22 +284,27 @@
 
    ; Incremental and narrowing framework
    (use-package helm
-     :ensure t)
+     :ensure t
+     :disabled t)
 
    ; Helm interface for company-mode;
    (use-package helm-company
-     :ensure t)
+     :ensure t
+     :disabled t)
 
    ; Helm integration for Projectile
    (use-package helm-projectile
-     :ensure t)
+     :ensure t
+     :disabled t)
 
    ; Efficiently hopping squeezed lines
    (use-package helm-swoop
-     :ensure t)
+     :ensure t
+     :disabled t)
 
    ; Lets you interactively do things with buffers and files.
    (use-package ido
+     :disabled t
      :init (progn
              (ido-mode 1)
              (use-package ido-vertical-mode
@@ -334,7 +352,6 @@
      :bind (("C-c h" . counsel-descbinds)
             ("M-x" . counsel-M-x)
             ("M-y" . counsel-yank-pop)
-            ("C-c C-r" . counsel-recentf)
             ; Silver searcher must be installed in order to Counsel-ag work
             ; properly. See [[https://github.com/ggreer/the_silver_searcher][Silver Searcher]].
             ("M-p" . counsel-ag)
@@ -390,7 +407,8 @@
 
    ; Emacs support library for PDF files
    (use-package pdf-tools
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Manage and navigate projects in Emacs easily
    (use-package projectile
@@ -435,6 +453,7 @@
      :init
      (global-whitespace-cleanup-mode t))
 
+   
    (use-package yasnippet
      :ensure t
      :defer t
