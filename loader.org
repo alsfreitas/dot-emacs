@@ -155,7 +155,8 @@
    ; languages supported.
    (use-package aggressive-indent
      :ensure t
-     :defer t)
+     :defer t
+     :config (global-aggressive-indent-mode 1))
 
    ; Automatically compile Emacs Lisp libraries
    (use-package auto-compile
@@ -262,8 +263,10 @@
    ; Increase selected region by semantic units
    (use-package expand-region
      :ensure t
+     :pin melpa-stable
      :bind (("C->" . er/expand-region)
-           ("C-<" . er/contract-region))) 
+            ("C-<" . er/contract-region))
+     :init (setq expand-region-smart-cursor nil))
 
    ; Flyspell highlights incorrect words as soon as they are completed or as
    ; soon as the TextCursor hits a new word.
@@ -287,12 +290,15 @@
    ; Automatic resizing windows to golden ratio
    (use-package golden-ratio
      :ensure t
+     :diminish golden-ratio-mode
+     :init (golden-ratio-mode 1)
+           (add-to-list 'golden-ratio-extra-commands 'ace-window)
      :defer t)
 
    ; Awesome interface for nearly everything
    (use-package ivy
      :ensure t
-     :diminish (ivy-mode . "")
+     :diminish ivy-mode
      :init (ivy-mode 1)
      :bind (("C-x b" . ivy-switch-buffer)
             ("C-c C-r" . ivy-resume))
@@ -645,8 +651,6 @@
    I smuggled some configurations from [[https://github.com/torenord/.emacs.d/][torenord]], providing a cleaner look.
 
    #+BEGIN_SRC emacs-lisp
-   (require 'git-gutter-fringe)
-
    (dolist (p '((git-gutter:added    . "#0c0")
                 (git-gutter:deleted  . "#c00")
                 (git-gutter:modified . "#c0c")))
