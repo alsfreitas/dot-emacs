@@ -154,14 +154,18 @@
    ; Keeps your code always indented, reindenting after every change. Multiple
    ; languages supported.
    (use-package aggressive-indent
-     :ensure t)
+     :ensure t
+     :defer t)
+
    ; Automatically compile Emacs Lisp libraries
    (use-package auto-compile
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Does asynchronous processing in Emacs
    (use-package async
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Jump to things in Emacs tree-style
    (use-package avy
@@ -172,7 +176,7 @@
    ; Clojure Interactive Development Environment
    (use-package cider
      :ensure t
-     :defer t
+     :defer 5
      :pin melpa-stable
      :init
      (add-hook 'cider-mode-hook #'clj-refactor-mode)
@@ -208,7 +212,7 @@
    ; Adds powerful refactoring facilities to Cider
    (use-package clj-refactor
      :ensure t
-     :defer t
+     :defer 5
      :diminish clj-refactor-mode
      :config (cljr-add-keybindings-with-prefix "C-c C-m"))
 
@@ -224,14 +228,24 @@
            (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
            (add-hook 'clojure-mode-hook #'eldoc-mode))
 
-   ; Modular text completion framework
+   ; [[https://github.com/auto-complete/auto-complete][Auto-Complete]] has been a part of my config for years, but I want to try
+   ; out [[http://company-mode.github.io/][company-mode]]. If I code in an environment with good completion, I've
+   ; made an habit of trying to /guess/ function-names, and looking at the
+   ; completions for the right one. 
    (use-package company
      :ensure t
      :bind (("C-d" . company-show-doc-buffer)
             ("C-n" . company-select-next)
             ("C-p" . company-select-previous)
             ("TAB" . company-complete))
-     :init (add-hook 'after-init-hook #'global-company-mode))
+     :init (add-hook 'after-init-hook #'global-company-mode)
+     :config (setq company-idle-delay nil
+                   company-echo-delay 0
+                   company-dabbrev-downcase nil
+                   company-minimum-prefix-length 2
+                   company-selection-wrap-around t
+                   company-transformers '(company-sort-by-occurrence
+                                          company-sort-by-backend-importance)))
 
    ; display the definition of word at point
    (use-package define-word
@@ -249,7 +263,7 @@
    (use-package expand-region
      :ensure t
      :bind (("C->" . er/expand-region)
-           ("C-<" . er/contract-region)))
+           ("C-<" . er/contract-region))) 
 
    ; Flyspell highlights incorrect words as soon as they are completed or as
    ; soon as the TextCursor hits a new word.
@@ -262,61 +276,18 @@
 
    ; GNU Emacs and Scheme talk to each other
    (use-package geiser 
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Fringe version of git-gutter.el
    (use-package git-gutter-fringe
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Automatic resizing windows to golden ratio
    (use-package golden-ratio
-     :ensure t)
-
-   ; Incremental and narrowing framework
-   (use-package helm
      :ensure t
-     :disabled t)
-
-   ; Helm interface for company-mode;
-   (use-package helm-company
-     :ensure t
-     :disabled t)
-
-   ; Helm integration for Projectile
-   (use-package helm-projectile
-     :ensure t
-     :disabled t)
-
-   ; Efficiently hopping squeezed lines
-   (use-package helm-swoop
-     :ensure t
-     :disabled t)
-
-   ; Lets you interactively do things with buffers and files.
-   (use-package ido
-     :disabled t
-     :init (progn
-             (ido-mode 1)
-             (use-package ido-vertical-mode
-               :ensure t
-               :init (ido-vertical-mode 1))
-             (use-package flx-ido
-               :ensure t
-               :init (flx-ido-mode 1))
-             (use-package ido-ubiquitous
-               :ensure t)
-             (use-package smex
-               :ensure t
-               :init (smex-initialize)
-               :bind ("M-x" . smex)))
-     :config (progn
-               (setq ido-enable-prefix nil
-                     ido-enable-flex-matching t
-                     ido-case-fold t
-                     ido-create-new-buffer 'always
-                     ido-use-filename-at-point 'guess
-                     ido-max-prospects 10)
-               (add-to-list 'ido-ignore-files "\\.DS_Store")))
+     :defer t)
 
    ; Awesome interface for nearly everything
    (use-package ivy
@@ -350,11 +321,13 @@
 
    ; Python auto-completion for Emacs
    (use-package jedi
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Improved JavaScript editing mode
    (use-package js2-mode
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Control Git from Emacs. In order to use =magit= one should have git version >=
    ; 1.94 installed
@@ -364,7 +337,8 @@
 
    ; Emacs Major mode for Markdown-formatted files
    (use-package markdown-mode
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Port of the popular TextMate theme by Wimer Hazenberg
    (use-package monokai-theme
@@ -374,24 +348,22 @@
    ; Multiple cursors for Emacs
    (use-package multiple-cursors
      :ensure t
-     :defer t)
-
-   ; Minor mode for a nice writing environment
-   (use-package olivetti
-     :ensure t
-     :defer t)
+     :bind (("C-c e" . mc/edit-lines)
+            ;("C-c a" . mc/mark-all-like-this)
+            ("C-c n" . mc/mark-next-like-this)))
 
    ; Outline-based notes management and organizer. All contrib files are also
    ; installed
    (use-package org
      :ensure org-plus-contrib
-     :pin org)
+     :pin org
+     :defer 1)
 
    ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
    (use-package monokai-theme
      :ensure t)
 
-   ;; Install paredit and enable it in elisp and Clojure modes
+   ;; Install paredit and enable it in elisp and Clojure(script) modes
    (use-package paredit
      :ensure t
      :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript))
@@ -415,7 +387,8 @@
 
    ; Manage and navigate projects in Emacs easily
    (use-package projectile
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Highlights delimiters such as parentheses, brackets or braces according to
    ; their depth
@@ -430,7 +403,8 @@
 
    ; Superior Lisp Interaction Mode for Emacs
    (use-package slime
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; We want to navigate camelCase words as separate words.
    (use-package subword
@@ -439,7 +413,8 @@
 
    ; Try out Emacs packages without installation
    (use-package try
-     :ensure t)
+     :ensure t
+     :defer t)
 
    ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
    (use-package undo-tree
@@ -450,7 +425,7 @@
    ; Emacs package that displays available keybindings in popup
    (use-package which-key
      :ensure t
-     :defer 10
+     :defer 5
      :pin "melpa-stable"
      :init (which-key-mode))
 
@@ -515,7 +490,6 @@
    #+BEGIN_SRC emacs-lisp
    (setq auto-revert-interval 1            ; Refresh buffers fast
          custom-file (make-temp-file "")   ; Discard customization's
-         default-input-method "TeX"        ; Use TeX when toggling input method
          echo-keystrokes 0.1               ; Show keystrokes asap
          inhibit-startup-message t         ; No splash screen please
          initial-scratch-message nil       ; Clean scratch buffer
@@ -704,62 +678,6 @@
    #+BEGIN_SRC emacs-lisp
    (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
    (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-tools-install))
-   #+END_SRC
-
-** Completion
-
-   [[https://github.com/auto-complete/auto-complete][Auto-Complete]] has been a part of my config for years, but I want to try
-   out [[http://company-mode.github.io/][company-mode]]. If I code in an environment with good completion, I've
-   made an habit of trying to /guess/ function-names, and looking at the
-   completions for the right one. So I want a pretty aggressive completion
-   system, hence the no delay settings and short prefix length.
-
-   #+BEGIN_SRC emacs-lisp
-   (setq company-idle-delay 0
-         company-echo-delay 0
-         company-dabbrev-downcase nil
-         company-minimum-prefix-length 2
-         company-selection-wrap-around t
-         company-transformers '(company-sort-by-occurrence
-                                company-sort-by-backend-importance))
-   #+END_SRC
-
-** Helm
-
-   I've been a long time user of ~ido-mode~ along with ~ido-vertical-mode~, and
-   don't have any particular complaints. Though I've got a feeling I'm missing
-   out on something by not using [[https://github.com/emacs-helm/helm][helm]]. I will [[http://tuhdo.github.io/helm-intro.html][this excellent tutorial]] as a
-   starting point, along with some of the suggested configurations.
-
-   ~helm~ has a wonderful feature, being able to grep files by ~C-s~ anywhere,
-   which is useful. [[http://beyondgrep.com/][ack]] is a great ~grep~-replacement, and is designed to
-   search source code, so I want to use that if it's available.
-
-   Note that some changes in bindings are located in the key bindings (found
-   near the end of the configuration).
-
-   #+BEGIN_SRC emacs-lisp
-   (require 'helm)
-   (require 'helm-config)
-
-   (setq helm-split-window-in-side-p t
-         helm-M-x-fuzzy-match t
-         helm-buffers-fuzzy-matching t
-         helm-recentf-fuzzy-match t
-         helm-move-to-line-cycle-in-source t
-         projectile-completion-system 'helm)
-
-   (when (executable-find "ack")
-     (setq helm-grep-default-command
-           "ack -Hn --no-group --no-color %e %p %f"
-           helm-grep-default-recurse-command
-           "ack -H --no-group --no-color %e %p %f"))
-
-   (set-face-attribute 'helm-selection nil :background "cyan")
-
-   (helm-mode 1)
-   (helm-projectile-on)
-   (helm-adaptive-mode 1)
    #+END_SRC
 
 ** Calendar
@@ -1338,32 +1256,6 @@
     "A keymap for custom bindings.")
   #+END_SRC
 
-** Bindings for [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C-c e")  'mc/edit-lines)
-  (define-key custom-bindings-map (kbd "C-c a")  'mc/mark-all-like-this)
-  (define-key custom-bindings-map (kbd "C-c n")  'mc/mark-next-like-this)
-  #+END_SRC
-
-
-** Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
-
-  #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C-c h")   'helm-command-prefix)
-  (define-key custom-bindings-map (kbd "M-x")     'helm-M-x)
-  (define-key custom-bindings-map (kbd "M-y")     'helm-show-kill-ring)
-  (define-key custom-bindings-map (kbd "C-x b")   'helm-mini)
-  (define-key custom-bindings-map (kbd "C-x C-f") 'helm-find-files)
-  (define-key custom-bindings-map (kbd "C-c h o") 'helm-occur)
-  (define-key custom-bindings-map (kbd "C-c h g") 'helm-google-suggest)
-  (define-key custom-bindings-map (kbd "M-i")     'helm-swoop)
-  (define-key custom-bindings-map (kbd "M-I")     'helm-multi-swoop-all)
-
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-i")   'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z")   'helm-select-action)
-  #+END_SRC
 
 ** Bindings for built-ins
 
