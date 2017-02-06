@@ -141,7 +141,7 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-         ; We can control the amount of output use-package generates by setting
+                                           ; We can control the amount of output use-package generates by setting
          ; use-package-verbose to true
          (setq use-package-verbose t)
 
@@ -242,7 +242,7 @@
            :bind (("C-d" . company-show-doc-buffer)
                   ("C-n" . company-select-next)
                   ("C-p" . company-select-previous)
-                  ("TAB" . company-complete))
+                  ("C-TAB" . company-complete))
            :init (add-hook 'after-init-hook #'global-company-mode)
            :config (setq company-idle-delay 0
                          company-echo-delay 0
@@ -252,15 +252,41 @@
                          company-transformers '(company-sort-by-occurrence
                                                 company-sort-by-backend-importance)))
 
-         ; display the definition of word at point
+         ; Remove the old keybinding. This keybinding will be used to work with
+         ; common text functions.
+         (global-set-key (kbd "C-t") nil) 
+
+         ; Display the definition of word at point
          (use-package define-word
            :ensure t
-           :bind (("H-d" . define-word-at-point)
-                  ("H-D" . define-word)))
+           :bind (("C-t d" . define-word-at-point)
+                  ("C-t D" . define-word)))
 
-         ; extends functionalities provided by standard GNU Emacs libraries dired.el,
+         ; This package allows to translate the strings using Google Translate
+         ; service directly from GNU Emacs.
+         (use-package google-translate
+           :ensure t
+           :defer t
+           :bind (("C-t t" . google-translate-smooth-translate))
+           :config (setq google-translate-translation-directions-alist
+                         '(("en" . "pt") ("pt" . "en") ("fr" . "pt") ("pt" . "fr"))))
+
+
+         ; Extends functionalities provided by standard GNU Emacs libraries dired.el,
          ; dired-aux.el, and dired-x.el.
          (use-package dired+
+           :ensure t
+           :defer t)
+
+         ; A emacs tree plugin like NerdTree for Vim.
+         (use-package neotree
+           :ensure t
+           :pin melpa-stable
+           :defer t
+           :config (global-set-key [f8] 'neotree-toggle))
+
+         ; Directory tree comparison mode for Emacs
+         (use-package ztree
            :ensure t
            :defer t)
 
@@ -374,17 +400,6 @@
                   ("C-c l" . counsel-locate)
                   ("C-x C-f" . counsel-find-file)))
 
-         ; This package allows to translate the strings using Google Translate
-         ; service directly from GNU Emacs.
-         (use-package google-translate
-           :ensure t
-           :defer t
-           :init (progn
-                   (global-set-key (kbd "C-x t") nil) ;; Remove the old keybinding
-                   (global-set-key (kbd "C-x t t") 'google-translate-smooth-translate))
-           :config (setq google-translate-translation-directions-alist
-                         '(("en" . "pt") ("pt" . "en") ("fr" . "pt") ("pt" . "fr"))))
-                
          ; Python auto-completion for Emacs
          (use-package jedi
            :ensure t
@@ -455,6 +470,13 @@
          (use-package projectile
            :ensure t
            :defer t)
+
+         ; Counsel-projectile provides further ivy integration into projectile by
+         ; taking advantage of ivy's mechanism to select from a list of actions
+         ; and/or apply an action without leaving the completion session.
+         (use-package counsel-projectile
+           :ensure t
+           :config (counsel-projectile-on))
 
          ; Highlights delimiters such as parentheses, brackets or braces according to
          ; their depth
