@@ -107,7 +107,7 @@
 
    Managing extensions and downloading packages for Emacs is simplified using =package= 
    which is built in to Emacs 24 and newer. To load downloaded packages we need to
-   initialize =package=. =cl-lib= is a library that contains many functions from
+   initialize =package=. =cl= is a library that contains many functions from
    Common Lisp, and comes in handy quite often, so we want to make sure it's loaded, 
    along with =package=, which is obviously needed.
 
@@ -116,7 +116,7 @@
    packages and manage hooks and binds in a modular way.
 
    #+BEGIN_SRC emacs-lisp
-   (require 'cl-lib)
+   (require 'cl)
    (require 'package)
    (setq package-archives
          '(("marmalade" . "http://marmalade-repo.org/packages/")
