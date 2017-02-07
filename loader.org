@@ -578,6 +578,12 @@
 
    These are what /I/ consider to be saner defaults.
 
+   Auto refresh buffers.
+  
+#+BEGIN_SRC 
+   (global-auto-revert-mode 1)
+#+END_SRC
+
    We can set variables to whatever value we'd like using =setq=.
 
    #+BEGIN_SRC emacs-lisp
@@ -644,7 +650,7 @@
          `((".*" ,emacs-autosave-directory t)))
    #+END_SRC
 
-   Set =utf-8= everywhere
+   Set =utf-8= everywhere.
 
    #+BEGIN_SRC emacs-lisp
   (setq locale-coding-system 'utf-8)
