@@ -5,5 +5,17 @@
 
 (package-initialize)
 
-(when (file-exists-p (concat user-emacs-directory "loader.el"))
-    (load-file (concat user-emacs-directory "loader.el")))
+(if (file-exists-p (concat user-emacs-directory "loader.el"))
+  (load-file (concat user-emacs-directory "loader.el"))
+  (progn
+    ;; We can't tangle without org!
+    (require 'org)
+    ;; Open the configuration
+    (find-file (concat user-emacs-directory "loader.org"))
+    ;; tangle it
+    (org-babel-tangle)
+    ;; finally byte-compile it
+    (byte-compile-file (concat user-emacs-directory "loader.el"))
+    ;; then loads the tangled file
+    (load-file (concat user-emacs-directory "loader.el"))))
+
