@@ -146,7 +146,7 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-                                           ; We can control the amount of output use-package generates by setting
+         ; We can control the amount of output use-package generates by setting
          ; use-package-verbose to true
          (setq use-package-verbose t)
 
