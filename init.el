@@ -1,10 +1,9 @@
-;; We can't tangle without org!
-(require 'org)
-;; Open the configuration
-(find-file (concat user-emacs-directory "loader.org"))
-;; tangle it
-(org-babel-tangle)
-;; load it
-(load-file (concat user-emacs-directory "loader.el"))
-;; finally byte-compile it
-(byte-compile-file (concat user-emacs-directory "loader.el"))
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+
+(package-initialize)
+
+(when (file-exists-p (concat user-emacs-directory "loader.el"))
+    (load-file (concat user-emacs-directory "loader.el")))
