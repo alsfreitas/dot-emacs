@@ -146,415 +146,421 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-         ; We can control the amount of output use-package generates by setting
-         ; use-package-verbose to true
-         (setq use-package-verbose t)
+            ; We can control the amount of output use-package generates by setting
+            ; use-package-verbose to true
+            (setq use-package-verbose t)
 
-         ; Quickly switch windows in Emacs
-         (use-package ace-window
-           :ensure t
-           :bind (("C-x o" . ace-window))
-           :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+            ; Quickly switch windows in Emacs
+            (use-package ace-window
+              :ensure t
+              :bind (("C-x o" . ace-window))
+              :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
-         ; Keeps your code always indented, reindenting after every change. Multiple
-         ; languages supported.
-         (use-package aggressive-indent
-           :ensure t
-           :defer t
-           :config (global-aggressive-indent-mode 1))
+            ; Keeps your code always indented, reindenting after every change. Multiple
+            ; languages supported.
+            (use-package aggressive-indent
+              :ensure t
+              :defer t
+              :config (global-aggressive-indent-mode 1))
 
-         ; Automatically compile Emacs Lisp libraries
-         (use-package auto-compile
-           :ensure t
-           :defer t)
+            ; Automatically compile Emacs Lisp libraries
+            (use-package auto-compile
+              :ensure t
+              :defer t)
 
-         ; Does asynchronous processing in Emacs
-         (use-package async
-           :ensure t
-           :defer t)
+            ; Does asynchronous processing in Emacs
+            (use-package async
+              :ensure t
+              :defer t)
 
-         ; Jump to things in Emacs tree-style
-         (use-package avy
-           :ensure t
-           :bind (("C-'" . avy-goto-char)
-                  ("C-:" . avy-goto-char-2)))
+            ; Jump to things in Emacs tree-style
+            (use-package avy
+              :ensure t
+              :bind (("C-'" . avy-goto-char)
+                     ("C-:" . avy-goto-char-2)))
 
-         ;
-         (use-package bind-key
-           :ensure t)
+            ;
+            (use-package bind-key
+              :ensure t)
 
-         ; Clojure Interactive Development Environment
-         (use-package cider
-           :ensure t
-           :defer 5
-           :pin melpa-stable
-           :init
-           (add-hook 'cider-mode-hook #'clj-refactor-mode)
-           :config
-           ; Enable eldoc in Clojure (Cider) buffers
-           (add-hook 'cider-mode-hook #'eldoc-mode)
-           ; The use of paredit when editing Clojure (or any other Lisp) code is
-           ; highly recommended. You're probably using it already in your
-           ; clojure-mode buffers (if you're not you probably should). You might
-           ; also want to enable paredit in the REPL buffer as well.
-           (add-hook 'cider-repl-mode-hook #'paredit-mode)
-           (setq
-             ; Controls whether to pop to the REPL buffer on connect.
-             cider-repl-pop-to-buffer-on-connect nil
-             ; Useful for debugging
-             nrepl-log-messages t
-             ; Switch to REPL in this window
-             cider-repl-display-in-current-window t 
-             ; Syntax highlighting in REPL   
-             cider-repl-use-clojure-font-lock t
-             ; always save when loading buffer
-             cider-prompt-save-file-on-load 'always-save 
-             ; Syntax highlight all namespaces                
-             cider-font-lock-dynamically '(macro core function var) 
-             ; Hide *nrepl-connection* and *nrepl-server* buffers from appearing
-             ; in some buffer switching commands like switch-to-buffer
-             nrepl-hide-special-buffers t
-             ; Syntax highlight evaluation overlays
-             cider-overlays-use-font-lock t)
-           ; REPL always pretty-prints results
-           (cider-repl-toggle-pretty-printing))
+            ; Clojure Interactive Development Environment
+            (use-package cider
+              :ensure t
+              :defer 5
+              :pin melpa-stable
+              :init
+              (add-hook 'cider-mode-hook #'clj-refactor-mode)
+              :config
+              ; Enable eldoc in Clojure (Cider) buffers
+              (add-hook 'cider-mode-hook #'eldoc-mode)
+              ; The use of paredit when editing Clojure (or any other Lisp) code is
+              ; highly recommended. You're probably using it already in your
+              ; clojure-mode buffers (if you're not you probably should). You might
+              ; also want to enable paredit in the REPL buffer as well.
+              (add-hook 'cider-repl-mode-hook #'paredit-mode)
+              (setq
+                ; Controls whether to pop to the REPL buffer on connect.
+                cider-repl-pop-to-buffer-on-connect nil
+                ; Useful for debugging
+                nrepl-log-messages t
+                ; Switch to REPL in this window
+                cider-repl-display-in-current-window t 
+                ; Syntax highlighting in REPL   
+                cider-repl-use-clojure-font-lock t
+                ; always save when loading buffer
+                cider-prompt-save-file-on-load 'always-save 
+                ; Syntax highlight all namespaces                
+                cider-font-lock-dynamically '(macro core function var) 
+                ; Hide *nrepl-connection* and *nrepl-server* buffers from appearing
+                ; in some buffer switching commands like switch-to-buffer
+                nrepl-hide-special-buffers t
+                ; Syntax highlight evaluation overlays
+                cider-overlays-use-font-lock t)
+              ; REPL always pretty-prints results
+              (cider-repl-toggle-pretty-printing))
 
-         ; Adds powerful refactoring facilities to Cider
-         (use-package clj-refactor
-           :ensure t
-           :defer 5
-           :diminish clj-refactor-mode
-           :config (cljr-add-keybindings-with-prefix "C-c C-m"))
+            ; Adds powerful refactoring facilities to Cider
+            (use-package clj-refactor
+              :ensure t
+              :defer 5
+              :diminish clj-refactor-mode
+              :config (cljr-add-keybindings-with-prefix "C-c C-m"))
 
-         ; Provides Emacs font-lock, indentation, navigation and refactoring.
-         (use-package clojure-mode
-           :ensure t
-           :init (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-                 (add-hook 'clojure-mode-hook #'clj-refactor-mode)
-                 (add-hook 'clojure-mode-hook #'paredit-mode)
-                 (add-hook 'clojure-mode-hook #'yas-minor-mode)         
-                 (add-hook 'clojure-mode-hook #'linum-mode)             
-                 (add-hook 'clojure-mode-hook #'subword-mode)
-                 (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-                 (add-hook 'clojure-mode-hook #'eldoc-mode))
+            ; Provides Emacs font-lock, indentation, navigation and refactoring.
+            (use-package clojure-mode
+              :ensure t
+              :init (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+                    (add-hook 'clojure-mode-hook #'clj-refactor-mode)
+                    (add-hook 'clojure-mode-hook #'paredit-mode)
+                    (add-hook 'clojure-mode-hook #'yas-minor-mode)         
+                    (add-hook 'clojure-mode-hook #'linum-mode)             
+                    (add-hook 'clojure-mode-hook #'subword-mode)
+                    (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
+                    (add-hook 'clojure-mode-hook #'eldoc-mode))
 
-         ; [[https://github.com/auto-complete/auto-complete][Auto-Complete]] has been a part of my config for years, but I want to try
-         ; out [[http://company-mode.github.io/][company-mode]]. If I code in an environment with good completion, I've
-         ; made an habit of trying to /guess/ function-names, and looking at the
-         ; completions for the right one. 
-         (use-package company
-           :ensure t
-           :bind (("C-d" . company-show-doc-buffer)
-                  ("C-n" . company-select-next)
-                  ("C-p" . company-select-previous)
-                  ("C-TAB" . company-complete))
-           :init (add-hook 'after-init-hook #'global-company-mode)
-           :config (setq company-idle-delay 0
-                         company-echo-delay 0
-                         company-dabbrev-downcase nil
-                         company-minimum-prefix-length 3
-                         company-selection-wrap-around t
-                         company-transformers '(company-sort-by-occurrence
-                                                company-sort-by-backend-importance)))
+            ; [[https://github.com/auto-complete/auto-complete][Auto-Complete]] has been a part of my config for years, but I want to try
+            ; out [[http://company-mode.github.io/][company-mode]]. If I code in an environment with good completion, I've
+            ; made an habit of trying to /guess/ function-names, and looking at the
+            ; completions for the right one. 
+            (use-package company
+              :ensure t
+              :bind (("C-d" . company-show-doc-buffer)
+                     ("C-n" . company-select-next)
+                     ("C-p" . company-select-previous)
+                     ("C-TAB" . company-complete))
+              :init (add-hook 'after-init-hook #'global-company-mode)
+              :config (setq company-idle-delay 0
+                            company-echo-delay 0
+                            company-dabbrev-downcase nil
+                            company-minimum-prefix-length 3
+                            company-selection-wrap-around t
+                            company-transformers '(company-sort-by-occurrence
+                                                   company-sort-by-backend-importance)))
 
-         ; Remove the old keybinding. This keybinding will be used to work with
-         ; common text functions.
-         (global-set-key (kbd "C-t") nil)
+            ; Remove the old keybinding. This keybinding will be used to work with
+            ; common text functions.
+            (global-set-key (kbd "C-t") nil)
 
-         ; Display the definition of word at point
-         (use-package define-word
-           :ensure t
-           :bind (("C-t d" . define-word-at-point)
-                  ("C-t D" . define-word)))
+            ; Display the definition of word at point
+            (use-package define-word
+              :ensure t
+              :bind (("C-t d" . define-word-at-point)
+                     ("C-t D" . define-word)))
 
-         ; This package allows to translate the strings using Google Translate
-         ; service directly from GNU Emacs.
-         (use-package google-translate
-           :ensure t
-           :defer t
-           :bind (("C-t t" . google-translate-smooth-translate))
-           :config (setq google-translate-translation-directions-alist
-                         '(("en" . "pt") ("pt" . "en") ("fr" . "pt") ("pt" . "fr"))))
-
-
-         ; Extends functionalities provided by standard GNU Emacs libraries dired.el,
-         ; dired-aux.el, and dired-x.el.
-         (use-package dired+
-           :ensure t
-           :defer t)
-
-         ; A emacs tree plugin like NerdTree for Vim.
-         (use-package neotree
-           :ensure t
-           :pin melpa-stable
-           :defer t
-           :config (global-set-key [f8] 'neotree-toggle))
-
-         ; Directory tree comparison mode for Emacs
-         (use-package ztree
-           :ensure t
-           :defer t)
-
-         ; Increase selected region by semantic units
-         (use-package expand-region
-           :ensure t
-           :pin melpa-stable
-           :bind (("C->" . er/expand-region)
-                  ("C-<" . er/contract-region))
-           :init (setq expand-region-smart-cursor nil))
-
-         ; Flyspell highlights incorrect words as soon as they are completed or as
-         ; soon as the TextCursor hits a new word.
-         (use-package flyspell
-           :ensure t
-           :defer 5
-           :init (progn
-                   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-                   (add-hook 'text-mode-hook 'flyspell-mode)))
-
-         ; GNU Emacs and Scheme talk to each other
-         (use-package geiser 
-           :ensure t
-           :defer t)
-
-         ; Fringe version of git-gutter.el
-         (use-package git-gutter-fringe
-           :ensure t
-           :defer t)
-
-         ; Automatic resizing windows to golden ratio
-         (use-package golden-ratio
-           :ensure t
-           :diminish golden-ratio-mode
-           :init (golden-ratio-mode 1)
-                 (add-to-list 'golden-ratio-extra-commands 'ace-window)
-           :defer t)
-
-         ; This is a package for GNU Emacs that can be used to tie related commands
-         ; into a family of short bindings with a common prefix
-         (use-package hydra
-           :ensure t
-           :bind (("s-f" . hydra-projectile/body)
-                  ("C-x t" . hydra-toggle/body)
-                  ("C-M-o" . hydra-window/body))
-           :config (hydra-add-font-lock)
-
-                   (use-package windmove
-                      :ensure t)
-
-                   (defhydra hydra-error (global-map "M-g")
-                     "goto-error"
-                     ("h" flycheck-list-errors "first")
-                     ("j" flycheck-next-error "next")
-                     ("k" flycheck-previous-error "prev")
-                     ("v" recenter-top-bottom "recenter")
-                     ("q" nil "quit"))
-
-                   (defhydra hydra-global-org (:color blue
-                                               :hint nil)
-   "
-   Timer^^        ^Clock^         ^Capture^
-   --------------------------------------------------
-   s_t_art        _w_ clock in    _c_apture
-    _s_top        _o_ clock out   _l_ast capture
-   _r_eset        _j_ clock goto
-   _p_rint
-   "
-                     ("t" org-timer-start)
-                     ("s" org-timer-stop)
-                     ;; Need to be at timer
-                     ("r" org-timer-set-timer)
-                     ;; Print timer value to buffer
-                     ("p" org-timer)
-                     ("w" (org-clock-in '(4)))
-                     ("o" org-clock-out)
-                     ;; Visit the clocked task from any buffer
-                     ("j" org-clock-goto)
-                     ("c" org-capture)
-                     ("l" org-capture-goto-last-stored))
-
-                     (global-set-key [f11] 'hydra-global-org/body))
-
-         ; Awesome interface for nearly everything
-         (use-package ivy
-           :ensure t
-           :diminish ivy-mode
-           :init (ivy-mode 1)
-           :bind (("C-x b" . ivy-switch-buffer)
-                  ("C-c C-r" . ivy-resume))
-           :config (progn
-                     (setq ivy-use-virtual-buffers t)
-                     (setq ivy-extra-directories nil)
-                     (setq ivy-re-builders-alist
-                       ;; allow input not in order
-                       '((t . ivy--regex-ignore-order)))))
-
-         (use-package swiper
-           :ensure t
-           :bind (("M-o" . swiper)))
-
-         ; A collection of Ivy-enhanced versions of common Emacs commands
-         (use-package counsel
-           :ensure t
-           :bind (("C-c h" . counsel-descbinds)
-                  ("M-x" . counsel-M-x)
-                  ("M-y" . counsel-yank-pop)
-                  ; Silver searcher must be installed in order to Counsel-ag work
-                  ; properly. See [[https://github.com/ggreer/the_silver_searcher][Silver Searcher]].
-                  ("M-p" . counsel-ag)
-                  ("C-c l" . counsel-locate)
-                  ("C-x C-f" . counsel-find-file)))
-
-         ; Python auto-completion for Emacs
-         (use-package jedi
-           :ensure t
-           :defer t)
-
-         ; Improved JavaScript editing mode
-         (use-package js2-mode
-           :ensure t
-           :defer t)
-
-         ; Control Git from Emacs. In order to use =magit= one should have git version >=
-         ; 1.94 installed
-         (use-package magit
-           :ensure t
-           :bind ("C-x g" . magit-status))
-
-         ; Emacs Major mode for Markdown-formatted files
-         (use-package markdown-mode
-           :ensure t
-           :defer t)
-
-         ; Port of the popular TextMate theme by Wimer Hazenberg
-         (use-package monokai-theme
-           :ensure t
-           :defer t)
-
-         ; Multiple cursors for Emacs
-         (use-package multiple-cursors
-           :ensure t
-           :bind (("C-c e" . mc/edit-lines)
-                  ("C-c a" . mc/mark-all-like-this)
-                  ("C-c n" . mc/mark-next-like-this)))
-
-         ; Outline-based notes management and organizer. All contrib files are also
-         ; installed
-         (use-package org
-           :ensure org-plus-contrib
-           :pin org
-           :defer 1)
-
-         ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
-         (use-package monokai-theme
-           :ensure t)
-
-         ;; Install paredit and enable it in elisp and Clojure(script) modes
-         (use-package paredit
-           :ensure t
-           :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript))
-                  (add-hook (intern (concat (symbol-name mode) "-mode-hook"))
-                            'paredit-mode)))
-
-         ; The library uniquify overrides Emacs' default mechanism for making buffer names unique
-         ; (using suffixes like <2>, <3> etc.) with a more sensible behaviour which use
-         ; parts of the file names to make the buffer names distinguishable.
-         (use-package uniquify
-          :ensure nil
-          :config (setq uniquify-buffer-name-style 'reverse)
-                  (setq uniquify-separator "|")
-                  (setq uniquify-after-kill-buffer-p t)
-                  (setq uniquify-ignore-buffers-re "^*"))
-
-         ; Emacs support library for PDF files
-         (use-package pdf-tools
-           :ensure t
-           :defer t)
-
-         ; Manage and navigate projects in Emacs easily
-         (use-package projectile
-           :ensure t
-           :defer t)
-
-         ; Counsel-projectile provides further ivy integration into projectile by
-         ; taking advantage of ivy's mechanism to select from a list of actions
-         ; and/or apply an action without leaving the completion session.
-         (use-package counsel-projectile
-           :ensure t
-           :config (counsel-projectile-on))
-
-         ; Highlights delimiters such as parentheses, brackets or braces according to
-         ; their depth
-         (use-package rainbow-delimiters
-           :ensure t
-           :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
-         ; Slamhound rips Clojure ns form apart and reconstructs it.
-         (use-package slamhound
-           :ensure t
-           :commands (slamhound))
-
-         ; Superior Lisp Interaction Mode for Emacs
-         (use-package slime
-           :ensure t
-           :defer t)
-
-         ; We want to navigate camelCase words as separate words.
-         (use-package subword
-           :diminish subword-mode
-           :init (global-subword-mode))
-
-         ; Try out Emacs packages without installation
-         (use-package try
-           :ensure t
-           :defer t)
-
-         ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
-         (use-package undo-tree
-           :ensure t
-           :diminish undo-tree-mode
-           :init (global-undo-tree-mode))
-
-         ; Emacs package that displays available keybindings in popup
-         (use-package which-key
-           :ensure t
-           :defer 5
-           :pin "melpa-stable"
-           :init (which-key-mode))
-
-         ; Whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
-         ; before saving the current buffer, but only if the whitespace in the buffer
-         ; was initially clean. It determines this by quickly checking to see if
-         ; whitespace-cleanup would have any effect on the buffer.
-         (use-package whitespace-cleanup-mode
-           :ensure t
-           :init
-           (global-whitespace-cleanup-mode t))
+            ; This package allows to translate the strings using Google Translate
+            ; service directly from GNU Emacs.
+            (use-package google-translate
+              :ensure t
+              :defer t
+              :bind (("C-t t" . google-translate-smooth-translate))
+              :config (setq google-translate-translation-directions-alist
+                            '(("en" . "pt") ("pt" . "en") ("fr" . "pt") ("pt" . "fr"))))
 
 
-         (use-package yasnippet
-           :ensure t
-           :defer t
-           :init (yas-global-mode 1)
-           :config ; Modern API for working with files and directories in Emacs
-                   (use-package f
-                     :ensure t)
-                   (let ((snippets-dir (expand-file-name "snippets" user-emacs-directory)))
-                     (if (f-directory? snippets-dir)
-                       (setq yas-snippet-dirs snippets-dir)))) 
+            ; Extends functionalities provided by standard GNU Emacs libraries dired.el,
+            ; dired-aux.el, and dired-x.el.
+            (use-package dired+
+              :ensure t
+              :defer t)
 
-         ; An awsome low contrast theme          
-         (use-package zenburn-theme
-           :ensure t)
+            ; A emacs tree plugin like NerdTree for Vim.
+            (use-package neotree
+              :ensure t
+              :pin melpa-stable
+              :defer t
+              :config (global-set-key [f8] 'neotree-toggle))
 
-         ;; This package is only relevant for Mac OS X.
-         (when (memq window-system '(ns))
-           (use-package exec-path-from-shell
-             :ensure t
-             :init (exec-path-from-shell-initialize)))
+            ; Directory tree comparison mode for Emacs
+            (use-package ztree
+              :ensure t
+              :defer t)
+
+            ; Increase selected region by semantic units
+            (use-package expand-region
+              :ensure t
+              :pin melpa-stable
+              :bind (("C->" . er/expand-region)
+                     ("C-<" . er/contract-region))
+              :init (setq expand-region-smart-cursor nil))
+
+            ; Flyspell highlights incorrect words as soon as they are completed or as
+            ; soon as the TextCursor hits a new word.
+            (use-package flyspell
+              :ensure t
+              :defer 5
+              :init (progn
+                      (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+                      (add-hook 'text-mode-hook 'flyspell-mode)))
+
+            ; GNU Emacs and Scheme talk to each other
+            (use-package geiser 
+              :ensure t
+              :defer t)
+
+            ; Fringe version of git-gutter.el
+            (use-package git-gutter
+              :ensure t
+              :diminish git-gutter-mode
+              :init (global-git-gutter-mode)
+              :config (setq git-gutter:update-interval 2)
+                      (set-face-background 'git-gutter:modified "#b58900")
+                      (set-face-background 'git-gutter:added "#859900")
+                      (set-face-background 'git-gutter:deleted "#dc322f")
+                      (set-face-foreground 'git-gutter:modified "none")
+                      (set-face-foreground 'git-gutter:added "none")
+                      (set-face-foreground 'git-gutter:deleted "none"))
+
+            ; Automatic resizing windows to golden ratio
+            (use-package golden-ratio
+              :ensure t
+              :diminish golden-ratio-mode
+              :init (golden-ratio-mode 1)
+                    (add-to-list 'golden-ratio-extra-commands 'ace-window)
+              :defer t)
+
+            ; This is a package for GNU Emacs that can be used to tie related commands
+            ; into a family of short bindings with a common prefix
+            (use-package hydra
+              :ensure t
+              :bind (("s-f" . hydra-projectile/body)
+                     ("C-x t" . hydra-toggle/body)
+                     ("C-M-o" . hydra-window/body))
+              :config (hydra-add-font-lock)
+
+                      (use-package windmove
+                         :ensure t)
+
+                      (defhydra hydra-error (global-map "M-g")
+                        "goto-error"
+                        ("h" flycheck-list-errors "first")
+                        ("j" flycheck-next-error "next")
+                        ("k" flycheck-previous-error "prev")
+                        ("v" recenter-top-bottom "recenter")
+                        ("q" nil "quit"))
+
+                      (defhydra hydra-global-org (:color blue
+                                                  :hint nil)
+      "
+      Timer^^        ^Clock^         ^Capture^
+      --------------------------------------------------
+      s_t_art        _w_ clock in    _c_apture
+       _s_top        _o_ clock out   _l_ast capture
+      _r_eset        _j_ clock goto
+      _p_rint
+      "
+                        ("t" org-timer-start)
+                        ("s" org-timer-stop)
+                        ;; Need to be at timer
+                        ("r" org-timer-set-timer)
+                        ;; Print timer value to buffer
+                        ("p" org-timer)
+                        ("w" (org-clock-in '(4)))
+                        ("o" org-clock-out)
+                        ;; Visit the clocked task from any buffer
+                        ("j" org-clock-goto)
+                        ("c" org-capture)
+                        ("l" org-capture-goto-last-stored))
+
+                        (global-set-key [f11] 'hydra-global-org/body))
+
+            ; Awesome interface for nearly everything
+            (use-package ivy
+              :ensure t
+              :diminish ivy-mode
+              :init (ivy-mode 1)
+              :bind (("C-x b" . ivy-switch-buffer)
+                     ("C-c C-r" . ivy-resume))
+              :config (progn
+                        (setq ivy-use-virtual-buffers t)
+                        (setq ivy-extra-directories nil)
+                        (setq ivy-re-builders-alist
+                          ;; allow input not in order
+                          '((t . ivy--regex-ignore-order)))))
+
+            (use-package swiper
+              :ensure t
+              :bind (("M-o" . swiper)))
+
+            ; A collection of Ivy-enhanced versions of common Emacs commands
+            (use-package counsel
+              :ensure t
+              :bind (("C-c h" . counsel-descbinds)
+                     ("M-x" . counsel-M-x)
+                     ("M-y" . counsel-yank-pop)
+                     ; Silver searcher must be installed in order to Counsel-ag work
+                     ; properly. See [[https://github.com/ggreer/the_silver_searcher][Silver Searcher]].
+                     ("M-p" . counsel-ag)
+                     ("C-c l" . counsel-locate)
+                     ("C-x C-f" . counsel-find-file)))
+
+            ; Python auto-completion for Emacs
+            (use-package jedi
+              :ensure t
+              :defer t)
+
+            ; Improved JavaScript editing mode
+            (use-package js2-mode
+              :ensure t
+              :defer t)
+
+            ; Control Git from Emacs. In order to use =magit= one should have git version >=
+            ; 1.94 installed
+            (use-package magit
+              :ensure t
+              :bind ("C-x g" . magit-status))
+
+            ; Emacs Major mode for Markdown-formatted files
+            (use-package markdown-mode
+              :ensure t
+              :defer t)
+
+            ; Port of the popular TextMate theme by Wimer Hazenberg
+            (use-package monokai-theme
+              :ensure t
+              :defer t)
+
+            ; Multiple cursors for Emacs
+            (use-package multiple-cursors
+              :ensure t
+              :bind (("C-c e" . mc/edit-lines)
+                     ("C-c a" . mc/mark-all-like-this)
+                     ("C-c n" . mc/mark-next-like-this)))
+
+            ; Outline-based notes management and organizer. All contrib files are also
+            ; installed
+            (use-package org
+              :ensure org-plus-contrib
+              :pin org
+              :defer 1)
+
+            ; Port of the popular TextMate theme Monokai by Wimer Hazenberg
+            (use-package monokai-theme
+              :ensure t)
+
+            ;; Install paredit and enable it in elisp and Clojure(script) modes
+            (use-package paredit
+              :ensure t
+              :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript))
+                     (add-hook (intern (concat (symbol-name mode) "-mode-hook"))
+                               'paredit-mode)))
+
+            ; The library uniquify overrides Emacs' default mechanism for making buffer names unique
+            ; (using suffixes like <2>, <3> etc.) with a more sensible behaviour which use
+            ; parts of the file names to make the buffer names distinguishable.
+            (use-package uniquify
+             :ensure nil
+             :config (setq uniquify-buffer-name-style 'reverse)
+                     (setq uniquify-separator "|")
+                     (setq uniquify-after-kill-buffer-p t)
+                     (setq uniquify-ignore-buffers-re "^*"))
+
+            ; Emacs support library for PDF files
+            (use-package pdf-tools
+              :ensure t
+              :defer t)
+
+            ; Manage and navigate projects in Emacs easily
+            (use-package projectile
+              :ensure t
+              :defer t)
+
+            ; Counsel-projectile provides further ivy integration into projectile by
+            ; taking advantage of ivy's mechanism to select from a list of actions
+            ; and/or apply an action without leaving the completion session.
+            (use-package counsel-projectile
+              :ensure t
+              :config (counsel-projectile-on))
+
+            ; Highlights delimiters such as parentheses, brackets or braces according to
+            ; their depth
+            (use-package rainbow-delimiters
+              :ensure t
+              :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+            ; Slamhound rips Clojure ns form apart and reconstructs it.
+            (use-package slamhound
+              :ensure t
+              :commands (slamhound))
+
+            ; Superior Lisp Interaction Mode for Emacs
+            (use-package slime
+              :ensure t
+              :defer t)
+
+            ; We want to navigate camelCase words as separate words.
+            (use-package subword
+              :diminish subword-mode
+              :init (global-subword-mode))
+
+            ; Try out Emacs packages without installation
+            (use-package try
+              :ensure t
+              :defer t)
+
+            ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
+            (use-package undo-tree
+              :ensure t
+              :diminish undo-tree-mode
+              :init (global-undo-tree-mode))
+
+            ; Emacs package that displays available keybindings in popup
+            (use-package which-key
+              :ensure t
+              :defer 5
+              :pin "melpa-stable"
+              :init (which-key-mode))
+
+            ; Whitespace-cleanup-mode is a minor mode which calls whitespace-cleanup
+            ; before saving the current buffer, but only if the whitespace in the buffer
+            ; was initially clean. It determines this by quickly checking to see if
+            ; whitespace-cleanup would have any effect on the buffer.
+            (use-package whitespace-cleanup-mode
+              :ensure t
+              :init
+              (global-whitespace-cleanup-mode t))
+
+
+            (use-package yasnippet
+              :ensure t
+              :defer t
+              :init (yas-global-mode 1)
+              :config ; Modern API for working with files and directories in Emacs
+                      (use-package f
+                        :ensure t)
+                      (let ((snippets-dir (expand-file-name "snippets" user-emacs-directory)))
+                        (if (f-directory? snippets-dir)
+                          (setq yas-snippet-dirs snippets-dir)))) 
+
+            ; An awsome low contrast theme          
+            (use-package zenburn-theme
+              :ensure t)
+
+            ;; This package is only relevant for Mac OS X.
+            (when (memq window-system '(ns))
+              (use-package exec-path-from-shell
+                :ensure t
+                :init (exec-path-from-shell-initialize)))
    #+END_SRC
-
-   #+RESULTS:
 
 ** Mac OS X
 
@@ -755,11 +761,11 @@
    I smuggled some configurations from [[https://github.com/torenord/.emacs.d/][torenord]], providing a cleaner look.
 
    #+BEGIN_SRC emacs-lisp
-   (dolist (p '((git-gutter:added    . "#0c0")
-                (git-gutter:deleted  . "#c00")
-                (git-gutter:modified . "#c0c")))
-     (set-face-foreground (car p) (cdr p))
-     (set-face-background (car p) (cdr p)))
+   ;;(dolist (p '((git-gutter:added    . "#0c0")
+   ;;             (git-gutter:deleted  . "#c00")
+   ;;             (git-gutter:modified . "#c0c")))
+   ;;  (set-face-foreground (car p) (cdr p))
+   ;;  (set-face-background (car p) (cdr p)))
    #+END_SRC
 
    New in Emacs 24.4 is the =prettify-symbols-mode=! It's neat.
@@ -1369,7 +1375,7 @@ should suffice to install all dependencies.
 
   My Emacs configurations written in Org mode.
 
-  Copyright (c) 2015 Anderson Freitas
+  Copyright (c) 2016 Anderson Freitas
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -1383,4 +1389,3 @@ should suffice to install all dependencies.
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
