@@ -56,16 +56,21 @@
    the file that is loaded. It looks like this:
 
    #+BEGIN_SRC emacs-lisp :tangle no
-   ;; We can't tangle without org!
-   (require 'org)
-   ;; Open the configuration
-   (find-file (concat user-emacs-directory "loader.org"))
-   ;; tangle it
-   (org-babel-tangle)
-   ;; load it
-   (load-file (concat user-emacs-directory "loader.el"))
-   ;; finally byte-compile it
-   (byte-compile-file (concat user-emacs-directory "loader.el"))
+   (package-initialize)
+
+   (if (file-exists-p (concat user-emacs-directory "loader.el"))
+     (load-file (concat user-emacs-directory "loader.el"))
+     (progn
+       ;; We can't tangle without org!
+       (require 'org)
+       ;; Open the configuration
+       (find-file (concat user-emacs-directory "loader.org"))
+       ;; tangle it
+       (org-babel-tangle)
+       ;; finally byte-compile it
+       (byte-compile-file (concat user-emacs-directory "loader.el"))
+       ;; then loads the tangled file
+       (load-file (concat user-emacs-directory "loader.el"))))
    #+END_SRC
 
    The =loader.el= should mirror the source blocks in the =loader.org=. 
