@@ -644,11 +644,22 @@
          `((".*" ,emacs-autosave-directory t)))
    #+END_SRC
 
-   Set =utf-8= as preferred coding system.
+   Set =utf-8= everywhere
 
    #+BEGIN_SRC emacs-lisp
-   (set-language-environment "UTF-8")
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
    #+END_SRC
+
+   Undo/redo window configuration with C-c <left>/C-c <right>
+
+#+BEGIN_SRC emacs-lisp
+  (winner-mode 1)
+#+END_SRC
 
    By default the =narrow-to-region= command is disabled and issues a
    warning, because it might confuse new users. I find it useful sometimes,
