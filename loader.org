@@ -46,14 +46,14 @@
 ** Meta
 
    All changes to the configuration should be done in =init.org=, *not* in
-   =init.el=. Emacs can't load =.org=-files directly, but =org-mode= provides functions
-   to extract the code blocks and write them to a file. There are multiple
-   ways of handling this; like suggested by [[http://emacs.stackexchange.com/questions/3143/can-i-use-org-mode-to-structure-my-emacs-or-other-el-configuration-file][this StackOverflow post]], one
-   could just use =org-babel-load-file=, but I had problems with
+   =init.el=. Emacs can't load =.org=-files directly, but =org-mode= provides
+   functions to extract the code blocks and write them to a file. There are
+   multiple ways of handling this; like suggested by [[http://emacs.stackexchange.com/questions/3143/can-i-use-org-mode-to-structure-my-emacs-or-other-el-configuration-file][this StackOverflow post]],
+   one could just use =org-babel-load-file=, but I had problems with
    byte-compilation.
 
-   When this configuration is loaded for the first time, the ~init.el~ is
-   the file that is loaded. It looks like this:
+   When this configuration is loaded for the first time, the ~init.el~ is the
+   file that is loaded. It looks like this:
 
    #+BEGIN_SRC emacs-lisp :tangle no
    (package-initialize)
@@ -107,6 +107,194 @@
         (when (file-exists-p private-file)
           (load-file private-file)))))
    #+END_SRC
+
+** Sane defaults
+
+   These are what /I/ consider to be saner defaults.
+
+   Turn off garbage collection during startup. Turn back on when startup is
+   complete, but set new threshold to 100MB.
+
+#+BEGIN_SRC 
+   (set-threshold most-positive-fixnum)
+   (add-hook 'afterter-init-hook (lambda () (setq gc-cons-threshold 104857600)))
+#+END_SRC
+
+   Auto refresh buffers.
+  
+#+BEGIN_SRC 
+   (global-auto-revert-mode 1)
+#+END_SRC
+
+   We can set variables to whatever value we'd like using =setq=.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq auto-revert-interval 1            ; Refresh buffers fast
+         custom-file (make-temp-file "")   ; Discard customization's
+         echo-keystrokes 0.1               ; Show keystrokes asap
+         inhibit-startup-message t         ; No splash screen please
+         initial-scratch-message nil       ; Clean scratch buffer
+         recentf-max-saved-items 100       ; Show more recent files
+         ring-bell-function 'ignore        ; Quiet
+         sentence-end-double-space nil     ; No double space
+         load-prefer-newer t)              ; Avoid using outdated compiled files
+         
+   #+END_SRC
+
+   Some variables are buffer-local, so changing them using =setq= will only
+   change them in a single buffer. Using =setq-default= we change the
+   buffer-local variable's default value.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq-default fill-column 80                    ; Maximum line width
+                 truncate-lines t                  ; Don't fold lines
+                 indent-tabs-mode nil              ; Use spaces instead of tabs
+                 next-line-add-newlines nil        ; Self-described
+                 require-final-newline nil         ; Self-described
+                 split-width-threshold 100         ; Split verticly by default
+                 auto-fill-function 'do-auto-fill) ; Auto-fill-mode everywhere
+   #+END_SRC
+
+   Enables important commands that are disabled by default.
+
+   #+BEGIN_SRC emacs-lisp
+   (put 'upcase-region 'disabled nil)
+   (put 'downcase-region 'disabled nil)
+   #+END_SRC
+
+   The =load-path= specifies where Emacs should look for =.el=-files (or Emacs
+   lisp files). I have a directory called =site-lisp= where I keep all
+   extensions that have been installed manually (these are mostly my own
+   projects).
+
+   #+BEGIN_SRC emacs-lisp
+   (let ((default-directory (concat user-emacs-directory "site-lisp/")))
+     (when (file-exists-p default-directory)
+       (setq load-path
+             (append
+              (let ((load-path (copy-sequence load-path)))
+                (normal-top-level-add-subdirs-to-load-path)) load-path))))
+   #+END_SRC
+
+   Answering /yes/ and /no/ to each question from Emacs can be tedious, a
+   single /y/ or /n/ will suffice.
+
+   #+BEGIN_SRC emacs-lisp
+   (fset 'yes-or-no-p 'y-or-n-p)
+   #+END_SRC
+
+   Avoid startup message from showing at the minibuffer.
+
+   #+BEGIN_SRC emacs-lisp
+   (fset 'display-startup-echo-area-message 'ignore)
+   #+END_SRC
+
+   To avoid file system clutter we put all auto saved files in a single
+   directory.
+
+   #+BEGIN_SRC emacs-lisp
+   (defvar emacs-autosave-directory
+     (concat user-emacs-directory "autosaves/")
+     "This variable dictates where to put auto saves. It is set to a
+     directory called autosaves located wherever your .emacs.d/ is
+     located.")
+
+   ;; Sets all files to be backed up and auto saved in a single directory.
+   (setq backup-directory-alist
+         `((".*" . ,emacs-autosave-directory))
+         auto-save-file-name-transforms
+         `((".*" ,emacs-autosave-directory t)))
+   #+END_SRC
+
+   Set =utf-8= everywhere.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq locale-coding-system 'utf-8)
+   (set-terminal-coding-system 'utf-8)
+   (set-keyboard-coding-system 'utf-8)
+   (set-selection-coding-system 'utf-8)
+   (prefer-coding-system 'utf-8)
+   (set-language-environment "UTF-8")
+   #+END_SRC
+
+   By default the =narrow-to-region= command is disabled and issues a warning,
+   because it might confuse new users. I find it useful sometimes, and don't
+   want to be warned.
+
+   #+BEGIN_SRC emacs-lisp
+   (put 'narrow-to-region 'disabled nil)
+   #+END_SRC
+
+** Key bindings
+
+   Kill the current buffer.
+
+   #+BEGIN_SRC emacs-lisp
+   (global-set-key (kbd "C-x k") 'kill-this-buffer)
+   #+END_SRC
+
+** Modes
+
+   There are some modes that are enabled by default that I don't find
+   particularly useful. We create a list of these modes, and disable all of
+   these.
+
+   #+BEGIN_SRC emacs-lisp
+   (dolist (mode
+            '(tool-bar-mode                ; No toolbars, more room for text
+              scroll-bar-mode              ; No scroll bars either
+              blink-cursor-mode            ; The blinking cursor gets old
+              menu-bar-mode))              ; Set of menus at the top of each frame
+     (funcall mode 0))
+   #+END_SRC
+
+   Let's apply the same technique for enabling modes that are disabled by default.
+                                        
+   #+BEGIN_SRC emacs-lisp
+   (dolist (mode
+            '(abbrev-mode                  ; E.g. sopl -> System.out.println
+              column-number-mode           ; Show column number in mode line
+              delete-selection-mode        ; Replace selected text
+              dirtrack-mode                ; directory tracking in *shell*
+              global-company-mode          ; Auto-completion everywhere
+              global-prettify-symbols-mode ; Greek letters should look greek
+              golden-ratio-mode            ; Automatic resizing of windows
+              projectile-global-mode       ; Manage and navigate projects
+              recentf-mode                 ; Recently opened files
+              show-paren-mode              ; Highlight matching parentheses
+              winner-mode))                ; It allows you to “undo” (and “redo”)
+                                           ; changes in the window configuration
+     (funcall mode 1))
+
+   (when (version< emacs-version "24.4")
+     (eval-after-load 'auto-compile
+       (auto-compile-on-save-mode)))  ; compile .el files on save
+   #+END_SRC
+
+** Mac OS X
+
+   I run this configuration mostly on Mac OS X, so we need a couple of settings
+   to make things work smoothly. In the package section =exec-path-from-shell=
+   is included (only if you're running OS X), this is to include
+   environment-variables from the shell. It makes using Emacs along with
+   external processes a lot simpler. I also prefer using the =Command=-key as
+   the =Meta=-key.
+
+   #+BEGIN_SRC emacs-lisp
+   (when (memq window-system '(ns darwin))
+     (setq ns-pop-up-frames nil
+           mac-option-modifier nil
+           mac-command-modifier 'meta
+           x-select-enable-clipboard t)
+     (exec-path-from-shell-initialize))
+   #+END_SRC
+
+   Some mac-bindings interfere with Emacs bindings.
+
+   #+BEGIN_SRC emacs-lisp
+   (when (boundp 'mac-pass-command-to-system)
+      (setq mac-pass-command-to-system nil))
+   #+END_SRC   
 
 ** Packages
 
@@ -591,166 +779,6 @@
              :init (exec-path-from-shell-initialize)))
    #+END_SRC
 
-** Mac OS X
-
-   I run this configuration mostly on Mac OS X, so we need a couple of
-   settings to make things work smoothly. In the package section
-   =exec-path-from-shell= is included (only if you're running OS X), this is
-   to include environment-variables from the shell. It makes using Emacs
-   along with external processes a lot simpler. I also prefer using the
-   =Command=-key as the =Meta=-key.
-
-   #+BEGIN_SRC emacs-lisp
-   (when (memq window-system '(ns))
-     (setq ns-pop-up-frames nil
-           mac-option-modifier nil
-           mac-command-modifier 'meta
-           x-select-enable-clipboard t)
-     (exec-path-from-shell-initialize))
-   #+END_SRC
-
-** Sane defaults
-
-   These are what /I/ consider to be saner defaults.
-
-   Auto refresh buffers.
-  
-#+BEGIN_SRC 
-   (global-auto-revert-mode 1)
-#+END_SRC
-
-   We can set variables to whatever value we'd like using =setq=.
-
-   #+BEGIN_SRC emacs-lisp
-   (setq auto-revert-interval 1            ; Refresh buffers fast
-         custom-file (make-temp-file "")   ; Discard customization's
-         echo-keystrokes 0.1               ; Show keystrokes asap
-         inhibit-startup-message t         ; No splash screen please
-         initial-scratch-message nil       ; Clean scratch buffer
-         recentf-max-saved-items 100       ; Show more recent files
-         ring-bell-function 'ignore        ; Quiet
-         sentence-end-double-space nil)    ; No double space
-   ;; Some mac-bindings interfere with Emacs bindings.
-   (when (boundp 'mac-pass-command-to-system)
-     (setq mac-pass-command-to-system nil))
-   #+END_SRC
-
-   Some variables are buffer-local, so changing them using =setq= will only
-   change them in a single buffer. Using =setq-default= we change the
-   buffer-local variable's default value.
-
-   #+BEGIN_SRC emacs-lisp
-   (setq-default fill-column 80                    ; Maximum line width
-                 truncate-lines t                  ; Don't fold lines
-                 indent-tabs-mode nil              ; Use spaces instead of tabs
-                 split-width-threshold 100         ; Split verticly by default
-                 auto-fill-function 'do-auto-fill) ; Auto-fill-mode everywhere
-   #+END_SRC
-
-   The =load-path= specifies where Emacs should look for =.el=-files (or
-   Emacs lisp files). I have a directory called =site-lisp= where I keep all
-   extensions that have been installed manually (these are mostly my own
-   projects).
-
-   #+BEGIN_SRC emacs-lisp
-   (let ((default-directory (concat user-emacs-directory "site-lisp/")))
-     (when (file-exists-p default-directory)
-       (setq load-path
-             (append
-              (let ((load-path (copy-sequence load-path)))
-                (normal-top-level-add-subdirs-to-load-path)) load-path))))
-   #+END_SRC
-
-   Answering /yes/ and /no/ to each question from Emacs can be tedious, a
-   single /y/ or /n/ will suffice.
-
-   #+BEGIN_SRC emacs-lisp
-   (fset 'yes-or-no-p 'y-or-n-p)
-   #+END_SRC
-
-   To avoid file system clutter we put all auto saved files in a single
-   directory.
-
-   #+BEGIN_SRC emacs-lisp
-   (defvar emacs-autosave-directory
-     (concat user-emacs-directory "autosaves/")
-     "This variable dictates where to put auto saves. It is set to a
-     directory called autosaves located wherever your .emacs.d/ is
-     located.")
-
-   ;; Sets all files to be backed up and auto saved in a single directory.
-   (setq backup-directory-alist
-         `((".*" . ,emacs-autosave-directory))
-         auto-save-file-name-transforms
-         `((".*" ,emacs-autosave-directory t)))
-   #+END_SRC
-
-   Set =utf-8= everywhere.
-
-   #+BEGIN_SRC emacs-lisp
-  (setq locale-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-  (set-language-environment "UTF-8")
-   #+END_SRC
-
-   Undo/redo window configuration with C-c <left>/C-c <right>
-
-#+BEGIN_SRC emacs-lisp
-  (winner-mode 1)
-#+END_SRC
-
-   By default the =narrow-to-region= command is disabled and issues a
-   warning, because it might confuse new users. I find it useful sometimes,
-   and don't want to be warned.
-
-   #+BEGIN_SRC emacs-lisp
-   (put 'narrow-to-region 'disabled nil)
-   #+END_SRC
-
-   Automaticly revert =doc-view=-buffers when the file changes on disk.
-
-   #+BEGIN_SRC emacs-lisp
-   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
-   #+END_SRC
-
-** Modes
-
-   There are some modes that are enabled by default that I don't find
-   particularly useful. We create a list of these modes, and disable all of
-   these.
-
-   #+BEGIN_SRC emacs-lisp
-   (dolist (mode
-            '(tool-bar-mode                ; No toolbars, more room for text
-              scroll-bar-mode              ; No scroll bars either
-              blink-cursor-mode))          ; The blinking cursor gets old
-     (funcall mode 0))
-   #+END_SRC
-
-   Let's apply the same technique for enabling modes that are disabled by default.
-                                        
-   #+BEGIN_SRC emacs-lisp
-   (dolist (mode
-            '(abbrev-mode                  ; E.g. sopl -> System.out.println
-              column-number-mode           ; Show column number in mode line
-              delete-selection-mode        ; Replace selected text
-              dirtrack-mode                ; directory tracking in *shell*
-              global-company-mode          ; Auto-completion everywhere
-              global-prettify-symbols-mode ; Greek letters should look greek
-              golden-ratio-mode            ; Automatic resizing of windows
-              projectile-global-mode       ; Manage and navigate projects
-              recentf-mode                 ; Recently opened files
-              show-paren-mode))            ; Highlight matching parentheses
-     (funcall mode 1))
-
-   (when (version< emacs-version "24.4")
-     (eval-after-load 'auto-compile
-       (auto-compile-on-save-mode)))  ; compile .el files on save
-   #+END_SRC
-
 ** Visual
 
    Change the color-theme to =zenburn=.
@@ -779,21 +807,6 @@
           (set-face-attribute 'default nil :font "Source Code Pro-13"))
          ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
-   #+END_SRC
-
-   [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]] gives a great visual indication of where you've made
-   changes since your last commit. There are several packages that performs
-   this task; the reason I've ended up with =git-gutter-fringe= is that it
-   reuses the (already present) fringe, saving a tiny bit of screen-estate.
-
-   I smuggled some configurations from [[https://github.com/torenord/.emacs.d/][torenord]], providing a cleaner look.
-
-   #+BEGIN_SRC emacs-lisp
-   ;;(dolist (p '((git-gutter:added    . "#0c0")
-   ;;             (git-gutter:deleted  . "#c00")
-   ;;             (git-gutter:modified . "#c0c")))
-   ;;  (set-face-foreground (car p) (cdr p))
-   ;;  (set-face-background (car p) (cdr p)))
    #+END_SRC
 
    New in Emacs 24.4 is the =prettify-symbols-mode=! It's neat.
@@ -903,7 +916,7 @@ should suffice to install all dependencies.
      "Changes the ispell dictionary to the first element in
    ISPELL-LANGUAGES, and returns an interactive function that cycles
    the languages in ISPELL-LANGUAGES when invoked."
-     (lexical-let ((ispell-languages '#1=("american" "portugues" . #1#)))
+     (lexical-let ((ispell-languages '#1=("american" "brasileiro" . #1#)))
        (ispell-change-dictionary (car ispell-languages))
        (lambda ()
          (interactive)
