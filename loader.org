@@ -341,6 +341,7 @@
          ; Quickly switch windows in Emacs
          (use-package ace-window
            :ensure t
+           :defer 2
            :bind (("C-x o" . ace-window))
            :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
@@ -348,17 +349,19 @@
          ; languages supported.
          (use-package aggressive-indent
            :ensure t
-           :defer t
+           :defer 2
            :config (global-aggressive-indent-mode 1))
 
          ; Automatically compile Emacs Lisp libraries
          (use-package auto-compile
            :ensure t
+           :defer 2
            :defer t)
 
          ; Does asynchronous processing in Emacs
          (use-package async
            :ensure t
+           :defer 2
            :defer t)
 
          ; Jump to things in Emacs tree-style
@@ -367,7 +370,10 @@
            :bind (("C-'" . avy-goto-char)
                   ("C-:" . avy-goto-char-2)))
 
-         ;
+         ; If you have lots of keybindings set in your .emacs file, it can be hard
+         ; to know which ones you haven't set yet, and which may now be overriding
+         ; some new default in a new emacs version. This module aims to solve that
+         ; problem.
          (use-package bind-key
            :ensure t)
 
@@ -432,6 +438,7 @@
          ; completions for the right one. 
          (use-package company
            :ensure t
+           :defer 5
            :bind (("C-d" . company-show-doc-buffer)
                   ("C-n" . company-select-next)
                   ("C-p" . company-select-previous)
@@ -452,6 +459,7 @@
          ; Display the definition of word at point
          (use-package define-word
            :ensure t
+           :defer 2
            :bind (("C-t d" . define-word-at-point)
                   ("C-t D" . define-word)))
 
@@ -459,29 +467,29 @@
          ; service directly from GNU Emacs.
          (use-package google-translate
            :ensure t
-           :defer t
+           :defer 5
            :bind (("C-t t" . google-translate-smooth-translate))
            :config (setq google-translate-translation-directions-alist
-                         '(("en" . "pt") ("pt" . "en") ("fr" . "pt") ("pt" . "fr"))))
+                         '(("en" . "pt") ("pt" . "en") (nil . nil))))
 
 
          ; Extends functionalities provided by standard GNU Emacs libraries dired.el,
          ; dired-aux.el, and dired-x.el.
          (use-package dired+
            :ensure t
-           :defer t)
+           :defer 0.1)
 
          ; A emacs tree plugin like NerdTree for Vim.
          (use-package neotree
            :ensure t
            :pin melpa-stable
-           :defer t
+           :defer 5
            :config (global-set-key [f8] 'neotree-toggle))
 
          ; Directory tree comparison mode for Emacs
          (use-package ztree
            :ensure t
-           :defer t)
+           :defer 5)
 
          ; Increase selected region by semantic units
          (use-package expand-region
@@ -495,10 +503,47 @@
          ; soon as the TextCursor hits a new word.
          (use-package flyspell
            :ensure t
-           :defer 5
            :init (progn
                    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-                   (add-hook 'text-mode-hook 'flyspell-mode)))
+                   (add-hook 'text-mode-hook 'flyspell-mode))
+           :config (use-package flyspell-correct
+                     :ensure t
+                     :defer t
+                     :pin melpa
+                     :bind (:map flyspell-mode-map
+                                 ("C-;" . flyspell-correct-previous-word-generic))
+                     :config (setq flyspell-correct-interface 'flyspell-correct-ivy)))
+
+         (defun flyspell-correct-ivy (candidates word)
+           "Run `ivy-read' for the given CANDIDATES given by flyspell for the
+           WORD. Return a selected word to use as a replacement."
+           (let* (result
+                  (action-default (lambda (x) (setq result x)))
+                  (action-save-word (lambda (_) (setq result (cons 'save word))))
+                  (action-accept-session (lambda (_) (setq result (cons 'session word))))
+                  (action-accept-buffer (lambda (_) (setq result (cons 'buffer word))))
+                  (action `(1
+                            ("o" ,action-default "correct")
+                            ("s" ,action-save-word "Save")
+                            ("S" ,action-accept-session "Accept (session)")
+                            ("b" ,action-accept-buffer "Accept (buffer)"))))
+             (ivy-read (format "Suggestions for \"%s\" in dictionary \"%s\": "
+                               word (or ispell-local-dictionary
+                                        ispell-dictionary
+                                        "Default"))
+                       candidates
+                       :action action
+                       :caller 'flyspell-correct-ivy)
+             result))
+
+         ; 
+         ;(use-package flyspell-correct
+         ;  :ensure t
+         ;  :defer t
+         ;  :pin melpa
+         ;  :bind (:map flyspell-mode-map
+         ;              ("C-;" . flyspell-correct-previous-word-generic))
+         ;  :config (setq flyspell-correct-interface 'flyspell-correct-ivy))
 
          ; GNU Emacs and Scheme talk to each other
          (use-package geiser 
@@ -509,6 +554,7 @@
          (use-package git-gutter-fringe
            :ensure t
            :diminish git-gutter-mode
+           :defer 3
            :init (add-hook 'git-gutter:update-hooks 'magit-after-revert-hook)
                  (add-hook 'git-gutter:update-hooks 'magit-not-reverted-hook)
            :config (use-package git-gutter
@@ -553,12 +599,13 @@
            :diminish golden-ratio-mode
            :init (golden-ratio-mode 1)
                  (add-to-list 'golden-ratio-extra-commands 'ace-window)
-           :defer t)
+           :defer 2)
 
          ; This is a package for GNU Emacs that can be used to tie related commands
          ; into a family of short bindings with a common prefix
          (use-package hydra
            :ensure t
+           :defer 2
            :bind (("s-f" . hydra-projectile/body)
                   ("C-x t" . hydra-toggle/body)
                   ("C-M-o" . hydra-window/body))
@@ -633,23 +680,24 @@
          ; Python auto-completion for Emacs
          (use-package jedi
            :ensure t
-           :defer t)
+           :defer 5)
 
          ; Improved JavaScript editing mode
          (use-package js2-mode
            :ensure t
-           :defer t)
+           :defer 5)
 
          ; Control Git from Emacs. In order to use =magit= one should have git version >=
          ; 1.94 installed
          (use-package magit
            :ensure t
+           :defer 5
            :bind ("C-x g" . magit-status))
 
          ; Emacs Major mode for Markdown-formatted files
          (use-package markdown-mode
            :ensure t
-           :defer t)
+           :defer 5)
 
          ; Port of the popular TextMate theme by Wimer Hazenberg
          (use-package monokai-theme
@@ -677,6 +725,7 @@
          ;; Install paredit and enable it in elisp and Clojure(script) modes
          (use-package paredit
            :ensure t
+           :defer 1
            :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript))
                   (add-hook (intern (concat (symbol-name mode) "-mode-hook"))
                             'paredit-mode)))
@@ -694,18 +743,19 @@
          ; Emacs support library for PDF files
          (use-package pdf-tools
            :ensure t
-           :defer t)
+           :defer 5)
 
          ; Manage and navigate projects in Emacs easily
          (use-package projectile
            :ensure t
-           :defer t)
+           :defer 2)
 
          ; Counsel-projectile provides further ivy integration into projectile by
          ; taking advantage of ivy's mechanism to select from a list of actions
          ; and/or apply an action without leaving the completion session.
          (use-package counsel-projectile
            :ensure t
+           :defer 2
            :config (counsel-projectile-on))
 
          ; Highlights delimiters such as parentheses, brackets or braces according to
@@ -717,17 +767,19 @@
          ; Slamhound rips Clojure ns form apart and reconstructs it.
          (use-package slamhound
            :ensure t
+           :defer t
            :commands (slamhound))
 
          ; Superior Lisp Interaction Mode for Emacs
          (use-package slime
            :ensure t
-           :defer t)
+           :defer 2)
 
          ; We want to navigate camelCase words as separate words.
          (use-package subword
            :diminish subword-mode
-           :init (global-subword-mode))
+           :init (global-subword-mode)
+           :defer 5)
 
          ; Try out Emacs packages without installation
          (use-package try
@@ -737,13 +789,14 @@
          ; Treats undo history as a branching tree of changes, similar to the way Vim handles it.
          (use-package undo-tree
            :ensure t
+           :defer 0.1
            :diminish undo-tree-mode
            :init (global-undo-tree-mode))
 
          ; Emacs package that displays available keybindings in popup
          (use-package which-key
            :ensure t
-           :defer 5
+           :defer 0.1
            :pin "melpa-stable"
            :init (which-key-mode))
 
@@ -759,7 +812,7 @@
 
          (use-package yasnippet
            :ensure t
-           :defer t
+           :defer 5
            :init (yas-global-mode 1)
            :config ; Modern API for working with files and directories in Emacs
                    (use-package f
