@@ -256,7 +256,6 @@
               column-number-mode           ; Show column number in mode line
               delete-selection-mode        ; Replace selected text
               dirtrack-mode                ; directory tracking in *shell*
-              global-company-mode          ; Auto-completion everywhere
               global-prettify-symbols-mode ; Greek letters should look greek
               golden-ratio-mode            ; Automatic resizing of windows
               projectile-global-mode       ; Manage and navigate projects
@@ -682,10 +681,11 @@
            :ensure t
            :defer 5)
 
-         ; Improved JavaScript editing mode
-         (use-package js2-mode
+         (use-package js2-refactor
            :ensure t
-           :defer 5)
+           :config (use-package js2-mode
+                     :ensure t
+                     :defer 5))
 
          ; Control Git from Emacs. In order to use =magit= one should have git version >=
          ; 1.94 installed
