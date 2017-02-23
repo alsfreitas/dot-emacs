@@ -683,9 +683,10 @@
 
          (use-package js2-refactor
            :ensure t
+           :defer t
            :config (use-package js2-mode
                      :ensure t
-                     :defer 5))
+                     :defer 3))
 
          ; Control Git from Emacs. In order to use =magit= one should have git version >=
          ; 1.94 installed
