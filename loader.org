@@ -727,7 +727,7 @@
          (use-package paredit
            :ensure t
            :defer 1
-           :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript))
+           :init (dolist (mode '(scheme emacs-lisp lisp clojure clojurescript js2))
                   (add-hook (intern (concat (symbol-name mode) "-mode-hook"))
                             'paredit-mode)))
 
