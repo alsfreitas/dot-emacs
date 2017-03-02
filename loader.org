@@ -681,12 +681,22 @@
            :ensure t
            :defer 5)
 
-         (use-package js2-refactor
-           :ensure t
-           :defer t
-           :config (use-package js2-mode
-                     :ensure t
-                     :defer 3))
+         ;(use-package js2-refactor
+         ;  :ensure t
+         ;  :defer t
+         ;  :config (use-package js2-mode
+         ;            :ensure t
+         ;            :defer 3))
+
+         (use-package web-mode
+           :ensure nil
+           :init (progn 
+                   (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+                   (add-hook 'web-mode-hook
+                     (lambda ()
+                       (if (equal web-mode-content-type "javascript")
+                       (web-mode-set-content-type "jsx")
+                       (message "now set to: %s" web-mode-content-type))))))
 
          ; Control Git from Emacs. In order to use =magit= one should have git version >=
          ; 1.94 installed
