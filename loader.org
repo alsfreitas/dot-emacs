@@ -408,7 +408,8 @@
              ; in some buffer switching commands like switch-to-buffer
              nrepl-hide-special-buffers t
              ; Syntax highlight evaluation overlays
-             cider-overlays-use-font-lock t)
+             cider-overlays-use-font-lock t
+             cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))")
            ; REPL always pretty-prints results
            (cider-repl-toggle-pretty-printing))
 
@@ -497,6 +498,10 @@
            :bind (("C->" . er/expand-region)
                   ("C-<" . er/contract-region))
            :init (setq expand-region-smart-cursor nil))
+
+         ; Support for Elixir language
+         (use-package elixir-mode
+           :ensure t)
 
          ; Flyspell highlights incorrect words as soon as they are completed or as
          ; soon as the TextCursor hits a new word.
