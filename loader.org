@@ -8,7 +8,8 @@
 
 * About
 
-  This is an Emacs configuration file written in [[http://orgmode.org][Org mode]]. It is an attempt
+
+  This Is an Emacs configuration file written in [[http://orgmode.org][Org mode]]. It is an attempt
   to keep my =~/.emacs.d= tidy, but still be able to keep it all in one
   file. I aim to briefly explain all my configurations as I go along!
 
